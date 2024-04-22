@@ -3,6 +3,7 @@
 
 ### Config is generated automatically by plugin
 -**NameDns**: ["dns1","dns2", etc]\
+-**GiveItemsDuringPistolRound**: true //will give items in PistolRound\
 -**Items**: ["item_name", etc]\
 -**Health**: health_value(int type) // ex Health: 100\
 -**Armor**: armor_value(int type) //ex Armor:100\
