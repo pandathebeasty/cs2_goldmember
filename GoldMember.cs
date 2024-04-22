@@ -11,6 +11,8 @@ public class GoldMemberConfig: BasePluginConfig
 {
     [JsonPropertyName("NameDns")]
     public List<string> NameDns { get; set; } = new List<string>();
+    [JsonPropertyName("GiveItemsDuringPistolRound")]
+    public bool GiveItemsDuringPistolRound { get; set; } = false;
     [JsonPropertyName("Items")]
     public List<string> Items { get; set; } = new List<string>();
     [JsonPropertyName("Health")]
@@ -89,12 +91,29 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         var moneyServices = player.InGameMoneyServices;
         if (moneyServices == null) return HookResult.Continue;
-
         if (string.IsNullOrWhiteSpace(Config.Money)) return HookResult.Continue;
 
         Server.NextFrame(() =>
         {  
-            if (!IsPistolRound())
+            if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+            {
+                foreach (string item in Config.Items)
+                {
+                    if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                    {
+                        player.GiveNamedItem(item.Trim());
+                    }
+                    else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                    {
+                        player.GiveNamedItem(item.Trim());
+                    }
+                    else
+                    {
+                        player.GiveNamedItem(item.Trim());
+                    }
+                }
+            }
+            else if (!IsPistolRound())
             {
                 foreach (string item in Config.Items)
                 {
@@ -112,13 +131,13 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                     }
                 }
 
-                player.Pawn.Value.Health = Config.Health;
-
                 if (Config.Money.Contains("++"))
                     moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
                 else
                     moneyServices.Account = int.Parse(Config.Money);
             }
+
+            player.Pawn.Value.Health = Config.Health;
             player.PlayerPawn.Value.ArmorValue = Config.Armor;
             player.Clan = Config.ClanTag;
         });
