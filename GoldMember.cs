@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
@@ -34,7 +34,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
     public override string ModuleVersion => "0.0.2";
-    public override string ModuleAuthor => "Created by fernoski#0001 & modified by panda.";
+    public override string ModuleAuthor => "fernoski#0001 & modified by panda.";
     public GoldMemberConfig? Config { get; set; }
 
     public void OnConfigParsed(GoldMemberConfig config)
@@ -59,7 +59,8 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         if (gamerules == null) return false;
         return gamerules.TotalRoundsPlayed == 0 || (halftime && maxrounds / 2 == gamerules.TotalRoundsPlayed) || gamerules.GameRestart;
     }
-
+	
+	[GameEventHandler(HookMode.Post)]
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
@@ -69,7 +70,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         bool isGoldMember = false;
 
-        foreach (string nameDns in this.Config.NameDns)
+        foreach (string nameDns in Config.NameDns)
         {
             if (player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0)
             {
@@ -91,48 +92,51 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         var moneyServices = player.InGameMoneyServices;
         if (moneyServices == null) return HookResult.Continue;
         if (string.IsNullOrWhiteSpace(Config.Money)) return HookResult.Continue;
+		
+		Server.NextFrame(() =>
+		{
+			if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+			{
+				foreach (string item in Config.Items)
+				{
+					if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+				}
+			}
+			else if (!IsPistolRound())
+			{
+				foreach (string item in Config.Items)
+				{
+					if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+				}
 
-        if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
-        {
-            foreach (string item in Config.Items)
-            {
-                if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                {
-                    player.GiveNamedItem(item.Trim());
-                }
-                else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                {
-                    player.GiveNamedItem(item.Trim());
-                }
-                else
-                {
-                    player.GiveNamedItem(item.Trim());
-                }
-            }
-        }
-        else if (!IsPistolRound())
-        {
-            foreach (string item in Config.Items)
-            {
-                if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                {
-                    player.GiveNamedItem(item.Trim());
-                }
-                else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                {
-                    player.GiveNamedItem(item.Trim());
-                }
-                else
-                {
-                    player.GiveNamedItem(item.Trim());
-                }
-            }
-
-            if (Config.Money.Contains("++"))
-                moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
-            else
-                moneyServices.Account = int.Parse(Config.Money);
-        }
+				if (Config.Money.Contains("++"))
+					moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
+				else
+					moneyServices.Account = int.Parse(Config.Money);
+			}
+		});
 
         player.Pawn.Value.Health = Config.Health;
         player.PlayerPawn.Value.ArmorValue = Config.Armor;
