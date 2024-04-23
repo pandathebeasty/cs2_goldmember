@@ -60,7 +60,6 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         return gamerules.TotalRoundsPlayed == 0 || (halftime && maxrounds / 2 == gamerules.TotalRoundsPlayed) || gamerules.GameRestart;
     }
 
-    [GameEventHandler(HookMode.Post)]
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
@@ -93,54 +92,51 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         if (moneyServices == null) return HookResult.Continue;
         if (string.IsNullOrWhiteSpace(Config.Money)) return HookResult.Continue;
 
-        Server.NextFrame(() =>
-        {  
-            if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+        if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+        {
+            foreach (string item in Config.Items)
             {
-                foreach (string item in Config.Items)
+                if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
                 {
-                    if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
+                    player.GiveNamedItem(item.Trim());
                 }
-            }
-            else if (!IsPistolRound())
-            {
-                foreach (string item in Config.Items)
+                else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
                 {
-                    if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
+                    player.GiveNamedItem(item.Trim());
                 }
-
-                if (Config.Money.Contains("++"))
-                    moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
                 else
-                    moneyServices.Account = int.Parse(Config.Money);
+                {
+                    player.GiveNamedItem(item.Trim());
+                }
+            }
+        }
+        else if (!IsPistolRound())
+        {
+            foreach (string item in Config.Items)
+            {
+                if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                {
+                    player.GiveNamedItem(item.Trim());
+                }
+                else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                {
+                    player.GiveNamedItem(item.Trim());
+                }
+                else
+                {
+                    player.GiveNamedItem(item.Trim());
+                }
             }
 
-            player.Pawn.Value.Health = Config.Health;
-            player.PlayerPawn.Value.ArmorValue = Config.Armor;
-            player.Clan = Config.ClanTag;
-        });
+            if (Config.Money.Contains("++"))
+                moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
+            else
+                moneyServices.Account = int.Parse(Config.Money);
+        }
+
+        player.Pawn.Value.Health = Config.Health;
+        player.PlayerPawn.Value.ArmorValue = Config.Armor;
+        player.Clan = Config.ClanTag;
 
         return HookResult.Continue;
     }
