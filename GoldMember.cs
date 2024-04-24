@@ -33,8 +33,8 @@ public class GoldMemberConfig: BasePluginConfig
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.0.1";
-    public override string ModuleAuthor => "Created by fernoski#0001 & modified by panda.";
+    public override string ModuleVersion => "0.0.2";
+    public override string ModuleAuthor => "fernoski#0001 & modified by panda.";
     public GoldMemberConfig? Config { get; set; }
 
     public void OnConfigParsed(GoldMemberConfig config)
@@ -139,9 +139,10 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
             player.Pawn.Value.Health = Config.Health;
             player.PlayerPawn.Value.ArmorValue = Config.Armor;
+            
             player.Clan = Config.ClanTag;
         });
 
-        return HookResult.Continue;
+        return HookResult.Handled;
     }
 }
