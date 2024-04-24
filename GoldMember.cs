@@ -1,4 +1,4 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
@@ -136,13 +136,6 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 				else
 					moneyServices.Account = int.Parse(Config.Money);
 			}
-		});
-
-                if (Config.Money.Contains("++"))
-                    moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
-                else
-                    moneyServices.Account = int.Parse(Config.Money);
-            }
 
             player.Pawn.Value.Health = Config.Health;
             player.PlayerPawn.Value.ArmorValue = Config.Armor;
