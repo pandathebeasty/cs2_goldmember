@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
@@ -24,9 +24,9 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("ClanTag")]
     public string ClanTag { get; set; } = "GoldMember®";
     [JsonPropertyName("BecomeGoldMemberMsg")]
-    public string BecomeGoldMemberMsg { get; set; } = "\u0007[GoldMember] \u0001To become\u0010 GoldMember \u0001you need to have\u0004 {0} \u0001in your name to receive following benefits: \u0010{1}\u0001.";
+    public string BecomeGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001To become\u0010 GoldMember \u0001you need to have\u0004 {0} \u0001in your name to receive following benefits: \u0010{1}\u0001.";
     [JsonPropertyName("IsGoldMemberMsg")]
-    public string IsGoldMemberMsg { get; set; } = "\u0007[GoldMember] \u0001You are a \u0010GoldMember.\u0001 You are receiving: \u0010{1}\u0001.";
+    public string IsGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001You are a \u0010GoldMember.\u0001 You are receiving: \u0010{1}\u0001.";
 }
 
 [MinimumApiVersion(213)]
@@ -59,8 +59,8 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         if (gamerules == null) return false;
         return gamerules.TotalRoundsPlayed == 0 || (halftime && maxrounds / 2 == gamerules.TotalRoundsPlayed) || gamerules.GameRestart;
     }
-
-    [GameEventHandler(HookMode.Post)]
+	
+	[GameEventHandler(HookMode.Post)]
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
@@ -70,7 +70,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         bool isGoldMember = false;
 
-        foreach (string nameDns in this.Config.NameDns)
+        foreach (string nameDns in Config.NameDns)
         {
             if (player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0)
             {
@@ -92,44 +92,51 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         var moneyServices = player.InGameMoneyServices;
         if (moneyServices == null) return HookResult.Continue;
         if (string.IsNullOrWhiteSpace(Config.Money)) return HookResult.Continue;
+		
+		Server.NextFrame(() =>
+		{
+			if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+			{
+				foreach (string item in Config.Items)
+				{
+					if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+				}
+			}
+			else if (!IsPistolRound())
+			{
+				foreach (string item in Config.Items)
+				{
+					if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+					else
+					{
+						player.GiveNamedItem(item.Trim());
+					}
+				}
 
-        Server.NextFrame(() =>
-        {  
-            if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
-            {
-                foreach (string item in Config.Items)
-                {
-                    if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                }
-            }
-            else if (!IsPistolRound())
-            {
-                foreach (string item in Config.Items)
-                {
-                    if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                    else
-                    {
-                        player.GiveNamedItem(item.Trim());
-                    }
-                }
+				if (Config.Money.Contains("++"))
+					moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
+				else
+					moneyServices.Account = int.Parse(Config.Money);
+			}
+		});
 
                 if (Config.Money.Contains("++"))
                     moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);

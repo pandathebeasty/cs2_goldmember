@@ -1,5 +1,5 @@
 # CS2 plugin - GoldMember
-## Receiving benefit for having DNS in nickname
+## Receiving benefits for having DNS in nickname
 
 ### Config is generated automatically by plugin
 -**NameDns**: ["dns1","dns2", etc]\
