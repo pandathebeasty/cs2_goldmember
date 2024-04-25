@@ -40,7 +40,7 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("BecomeGoldMemberMsg")]
     public string BecomeGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001To become\u0010 GoldMember \u0001you need to have\u0004 {0} \u0001in your name to receive following benefits: \u0010{1}\u0001.";
     [JsonPropertyName("IsGoldMemberMsg")]
-    public string IsGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001You are a \u0010GoldMember.\u0001 You are receiving: \u0010{1}\u0001.";
+    public string IsGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001You are a \u0010GoldMember.\u0001 You are receiving: \u0010{0}\u0001.";
 }
 
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
@@ -104,6 +104,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         }
 
         string itemsString = string.Join(", ", Config.Items);
+		if (itemsString == null) return HookResult.Continue;
 
         if (!isGoldMember)
         {
