@@ -45,11 +45,6 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
             config.Health = 100;
     }
 
-    public override void Load(bool hotReload)
-    {
-        RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
-    }
-
     public bool IsPistolRound()
     {
         var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
