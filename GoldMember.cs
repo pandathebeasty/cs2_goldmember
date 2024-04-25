@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
@@ -107,7 +107,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         if (!isGoldMember)
         {
-            player.PrintToChat(string.Format(Config.BecomeGoldMemberMsg, (object)string.Join("/", Config.NameDns), (object)itemsString));
+            player.PrintToChat(string.Format(Config.BecomeGoldMemberMsg,  (object)string.Join(", ", Config.NameDns), (object)itemsString));
             return HookResult.Continue;
         }
 
@@ -227,6 +227,6 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                 player.Clan = Config.ClanTag;
             }
         });
-        return HookResult.Handled;
+        return HookResult.Continue;
     }
 }
