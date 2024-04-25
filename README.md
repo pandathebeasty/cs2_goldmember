@@ -14,3 +14,5 @@
 - **VIPTime**: time_in_min
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
+
+**VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore)
