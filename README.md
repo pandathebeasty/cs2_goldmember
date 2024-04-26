@@ -3,7 +3,8 @@
 
 ### Config is generated automatically by plugin
 - **NameDns**: ["dns1","dns2", etc]
-- **GiveItemsDuringPistolRound**: true //will give items in PistolRound
+- **GiveItems**: true //give items to player
+- **GiveItemsDuringPistolRound**: true //will give items in PistolRound, only if GiveItems: true
 - **Items**: ["item_name", etc]
 - **Health**: health_value // ex Health: 100
 - **Armor**: armor_value //ex Armor:100
@@ -15,4 +16,5 @@
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
 
-**VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore)
+**VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) => minimum version: ***1.2.7***
+**Minimum CounterStrikeSharp Version**: ***213***
