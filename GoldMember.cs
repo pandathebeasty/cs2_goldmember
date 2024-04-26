@@ -43,18 +43,22 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("ClanTag")]
     public string ClanTag { get; set; } = "GoldMember®";
     [JsonPropertyName("BecomeGoldMemberMsg")]
-    public string BecomeGoldMemberMsg { get; set; } = "{red}[GoldMember] {default}To become {gold}GoldMember® {default}you need to have {lime}{0} {default}in your name to receive following benefits: {lime}{1}{default}.";
+    public string BecomeGoldMemberMsg { get; set; } = "[red][GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive following benefits:[lime] {1} [default].";
+    [JsonPropertyName("BecomeGoldMemberMsgWithoutItems")]
+    public string BecomeGoldMemberMsgWithoutItems { get; set; } = "[red][GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive benefits.";
     [JsonPropertyName("IsGoldMemberMsg")]
-    public string IsGoldMemberMsg { get; set; } = "{red}[GoldMember] {default}You are a {lime}GoldMember®{default}. You are receiving: {lime}{0}{default}.";
+    public string IsGoldMemberMsg { get; set; } = "[red][GoldMember] [default]You are [lime]GoldMember® [default]. You are receiving:[lime] {0} [default].";
+    [JsonPropertyName("IsGoldMemberMsgWithoutItems")]
+    public string IsGoldMemberMsgWithoutItems { get; set; } = "[red][GoldMember] [default]You are [lime]GoldMember® [default]. [gold]Thanks!";
     [JsonPropertyName("ConfigVersion")]
-    public override int Version { get; set; } = 2;
+    public override int Version { get; set; } = 3;
 }
     
 [MinimumApiVersion(215)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.0.4";
+    public override string ModuleVersion => "0.0.5";
     public override string ModuleAuthor => "fernoski0001, panda.4179, GL1TCH1337";
     public override string ModuleDescription => "DNS Benefits(https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
@@ -80,27 +84,27 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
     }
     private static readonly Dictionary<string, char> ColorMap = new Dictionary<string, char>
     {
-        { "{default}", ChatColors.Default },
-        { "{white}", ChatColors.White },
-        { "{darkred}", ChatColors.DarkRed },
-        { "{green}", ChatColors.Green },
-        { "{lightyellow}", ChatColors.LightYellow },
-        { "{lightblue}", ChatColors.LightBlue },
-        { "{olive}", ChatColors.Olive },
-        { "{lime}", ChatColors.Lime },
-        { "{red}", ChatColors.Red },
-        { "{lightpurple}", ChatColors.LightPurple },
-        { "{purple}", ChatColors.Purple },
-        { "{grey}", ChatColors.Grey },
-        { "{yellow}", ChatColors.Yellow },
-        { "{gold}", ChatColors.Gold },
-        { "{silver}", ChatColors.Silver },
-        { "{blue}", ChatColors.Blue },
-        { "{darkblue}", ChatColors.DarkBlue },
-        { "{bluegrey}", ChatColors.BlueGrey },
-        { "{magenta}", ChatColors.Magenta },
-        { "{lightred}", ChatColors.LightRed },
-        { "{orange}", ChatColors.Orange }
+        { "[default]", ChatColors.Default },
+        { "[white]", ChatColors.White },
+        { "[darkred]", ChatColors.DarkRed },
+        { "[green]", ChatColors.Green },
+        { "[lightyellow]", ChatColors.LightYellow },
+        { "[lightblue]", ChatColors.LightBlue },
+        { "[olive]", ChatColors.Olive },
+        { "[lime]", ChatColors.Lime },
+        { "[red]", ChatColors.Red },
+        { "[lightpurple]", ChatColors.LightPurple },
+        { "[purple]", ChatColors.Purple },
+        { "[grey]", ChatColors.Grey },
+        { "[yellow]", ChatColors.Yellow },
+        { "[gold]", ChatColors.Gold },
+        { "[silver]", ChatColors.Silver },
+        { "[blue]", ChatColors.Blue },
+        { "[darkblue]", ChatColors.DarkBlue },
+        { "[bluegrey]", ChatColors.BlueGrey },
+        { "[magenta]", ChatColors.Magenta },
+        { "[lightred]", ChatColors.LightRed },
+        { "[orange]", ChatColors.Orange }
     };
 
     private string ReplaceColorPlaceholders(string message)
@@ -170,12 +174,18 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         string itemsString = string.Join(", ", Config.Items);
 
         if (!isGoldMember)
-        {
-            player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.BecomeGoldMemberMsg, (object)string.Join(", ", Config.NameDns), (object)itemsString)));
+        {   
+            if (!string.IsNullOrWhiteSpace(itemsString))
+                player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.BecomeGoldMemberMsg, (object)string.Join(", ", Config.NameDns), itemsString)));
+            else
+                player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.BecomeGoldMemberMsgWithoutItems, (object)string.Join(", ", Config.NameDns))));
             return HookResult.Continue;
         }
 
-        player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.IsGoldMemberMsg, (object)itemsString)));
+        if (!string.IsNullOrWhiteSpace(itemsString))
+            player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.IsGoldMemberMsg, (object)itemsString)));
+        else
+            player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.IsGoldMemberMsgWithoutItems)));
 
         var moneyServices = player.InGameMoneyServices;
         if (moneyServices == null) return HookResult.Continue;
