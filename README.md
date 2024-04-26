@@ -16,7 +16,7 @@
 - **VipCoreEnabled**: true // if VipCore is on server
 - **GiveVIPToPlayer**: true // will give VIP to player
 - **VIPGroup**: "vip_group" // which group to give if **GiveVIPToPlayer** is true
-- **VIPTime**: time_in_min
+- **VIPTime**: time // depends on TimeMode from VIPCore
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
 
