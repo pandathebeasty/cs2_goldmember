@@ -17,4 +17,4 @@
 - **ClanTag** : "[GoldMember]"
 
 **VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) => minimum version: ***1.2.7***\
-**Minimum CounterStrikeSharp Version**: ***213***
+**Minimum CounterStrikeSharp Version**: ***215***

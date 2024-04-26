@@ -1,14 +1,17 @@
-using CounterStrikeSharp.API;
+﻿using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
-using System.Text.Json.Serialization;
-using CounterStrikeSharp.API.Modules.Cvars;
-using System;
-using VipCoreApi;
-using System;
 using CounterStrikeSharp.API.Core.Capabilities;
+using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Utils;
+using System;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
+using VipCoreApi;
 
 namespace GoldMember;
 public class GoldMemberConfig: BasePluginConfig
@@ -40,19 +43,75 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("ClanTag")]
     public string ClanTag { get; set; } = "GoldMember®";
     [JsonPropertyName("BecomeGoldMemberMsg")]
-    public string BecomeGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001To become\u0010 GoldMember \u0001you need to have\u0004 {0} \u0001in your name to receive following benefits: \u0010{1}\u0001.";
+    public string BecomeGoldMemberMsg { get; set; } = "{red}[GoldMember] {default}To become {gold}GoldMember® {default}you need to have {lime}{0} {default}in your name to receive following benefits: {lime}{1}{default}.";
     [JsonPropertyName("IsGoldMemberMsg")]
-    public string IsGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001You are a \u0010GoldMember.\u0001 You are receiving: \u0010{0}\u0001.";
+    public string IsGoldMemberMsg { get; set; } = "{red}[GoldMember] {default}You are a {lime}GoldMember®{default}. You are receiving: {lime}{0}{default}.";
+    [JsonPropertyName("ConfigVersion")]
+    public override int Version { get; set; } = 2;
 }
-[MinimumApiVersion(213)]
+    
+[MinimumApiVersion(215)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.0.3";
-    public override string ModuleAuthor => "fernoski#0001 & panda.4179";
+    public override string ModuleVersion => "0.0.4";
+    public override string ModuleAuthor => "fernoski0001, panda.4179, GL1TCH1337";
+    public override string ModuleDescription => "DNS Benefits(https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
     private IVipCoreApi? _api;
     private PluginCapability<IVipCoreApi> PluginCapability { get; } = new("vipcore:core");
+
+    private static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
+    private static readonly string CfgPath = $"{Server.GameDirectory}/csgo/addons/counterstrikesharp/configs/plugins/{AssemblyName}/{AssemblyName}.json";
+
+    private static void UpdateConfig<T>(T config) where T : BasePluginConfig, new()
+    {
+        var newCfgVersion = new T().Version;
+
+        if (config.Version == newCfgVersion)
+            return;
+
+        config.Version = newCfgVersion;
+
+        var updatedJsonContent = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(CfgPath, updatedJsonContent);
+
+        Console.WriteLine($"Config updated for V{newCfgVersion}.");
+    }
+    private static readonly Dictionary<string, char> ColorMap = new Dictionary<string, char>
+    {
+        { "{default}", ChatColors.Default },
+        { "{white}", ChatColors.White },
+        { "{darkred}", ChatColors.DarkRed },
+        { "{green}", ChatColors.Green },
+        { "{lightyellow}", ChatColors.LightYellow },
+        { "{lightblue}", ChatColors.LightBlue },
+        { "{olive}", ChatColors.Olive },
+        { "{lime}", ChatColors.Lime },
+        { "{red}", ChatColors.Red },
+        { "{lightpurple}", ChatColors.LightPurple },
+        { "{purple}", ChatColors.Purple },
+        { "{grey}", ChatColors.Grey },
+        { "{yellow}", ChatColors.Yellow },
+        { "{gold}", ChatColors.Gold },
+        { "{silver}", ChatColors.Silver },
+        { "{blue}", ChatColors.Blue },
+        { "{darkblue}", ChatColors.DarkBlue },
+        { "{bluegrey}", ChatColors.BlueGrey },
+        { "{magenta}", ChatColors.Magenta },
+        { "{lightred}", ChatColors.LightRed },
+        { "{orange}", ChatColors.Orange }
+    };
+
+    private string ReplaceColorPlaceholders(string message)
+    {
+        foreach (var colorPlaceholder in ColorMap)
+        {
+            message = message.Replace(colorPlaceholder.Key, colorPlaceholder.Value.ToString());
+        }
+        return message;
+    }
+
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
@@ -63,7 +122,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
             _api.OnCoreReady += () =>
             {
-                Logger.LogInformation("VIP CORE READY TO RUN");
+                Logger.LogInformation("VIP CORE READY TO RUN!");
             };
         }
     }
@@ -76,6 +135,8 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         if (config.Health < 100)
             config.Health = 100;
+
+        UpdateConfig(config);    
     }
 	public bool IsPistolRound()
     {
@@ -107,15 +168,25 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         }
 
         string itemsString = string.Join(", ", Config.Items);
-		if (itemsString == null) return HookResult.Continue;
 
         if (!isGoldMember)
         {
-            player.PrintToChat(string.Format(Config.BecomeGoldMemberMsg,  (object)string.Join(", ", Config.NameDns), (object)itemsString));
-            return HookResult.Continue;
+            string namesMessage = string.Join(", ", Config.NameDns);
+            if (Config.NameDns.Count > 1)
+            {
+                int lastCommaIndex = namesMessage.LastIndexOf(',');
+                if (lastCommaIndex != -1)
+                {
+                    namesMessage = namesMessage.Substring(0, lastCommaIndex) + " or" + namesMessage.Substring(lastCommaIndex + 1);
+                }
+            }
+            string message = ReplaceColorPlaceholders(string.Format(Config.BecomeGoldMemberMsg, namesMessage, itemsString));
+            player.PrintToChat(message);
+
+            return HookResult.Handled;
         }
 
-        player.PrintToChat(string.Format(Config.IsGoldMemberMsg, (object)itemsString));
+        player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.IsGoldMemberMsg, (object)itemsString)));
 
         var moneyServices = player.InGameMoneyServices;
         if (moneyServices == null) return HookResult.Continue;
