@@ -171,19 +171,8 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         if (!isGoldMember)
         {
-            string namesMessage = string.Join(", ", Config.NameDns);
-            if (Config.NameDns.Count > 1)
-            {
-                int lastCommaIndex = namesMessage.LastIndexOf(',');
-                if (lastCommaIndex != -1)
-                {
-                    namesMessage = namesMessage.Substring(0, lastCommaIndex) + " or" + namesMessage.Substring(lastCommaIndex + 1);
-                }
-            }
-            string message = ReplaceColorPlaceholders(string.Format(Config.BecomeGoldMemberMsg, namesMessage, itemsString));
-            player.PrintToChat(message);
-
-            return HookResult.Handled;
+            player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.BecomeGoldMemberMsg, (object)string.Join(", ", Config.NameDns), (object)itemsString)));
+            return HookResult.Continue;
         }
 
         player.PrintToChat(ReplaceColorPlaceholders(string.Format(Config.IsGoldMemberMsg, (object)itemsString)));
