@@ -16,5 +16,5 @@
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
 
-**VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) => minimum version: ***1.2.7***
+**VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) => minimum version: ***1.2.7***\
 **Minimum CounterStrikeSharp Version**: ***213***
