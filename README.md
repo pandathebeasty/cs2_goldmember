@@ -21,24 +21,24 @@
 - **ClanTag** : "[GoldMember]"
 
 ## Suported colors
-- {default}
-- {white}
-- {darkred}
-- {green}
-- {lightyellow}
-- {lightblue}
-- {olive}
-- {lime}
-- {red}
-- {lightpurple}
-- {purple}
-- {grey}
-- {yellow}
-- {gold}
-- {silver}
-- {blue}
-- {darkblue}
-- {bluegrey}
-- {magenta}
-- {lightred}
-- {orange}
+- [default]
+- [white]
+- [darkred]
+- [green]
+- [lightyellow]
+- [lightblue]
+- [olive]
+- [lime]
+- [red]
+- [lightpurple]
+- [purple]
+- [grey]
+- [yellow]
+- [gold]
+- [silver]
+- [blue]
+- [darkblue]
+- [bluegrey]
+- [magenta]
+- [lightred]
+- [orange]
