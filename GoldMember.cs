@@ -15,6 +15,8 @@ public class GoldMemberConfig: BasePluginConfig
 {
     [JsonPropertyName("NameDns")]
     public List<string> NameDns { get; set; } = new List<string>();
+    [JsonPropertyName("GiveItems")]
+    public bool GiveItems { get; set; } = true;
     [JsonPropertyName("GiveItemsDuringPistolRound")]
     public bool GiveItemsDuringPistolRound { get; set; } = false;
     [JsonPropertyName("Items")]
@@ -42,20 +44,19 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("IsGoldMemberMsg")]
     public string IsGoldMemberMsg { get; set; } = " \u0007[GoldMember] \u0001You are a \u0010GoldMember.\u0001 You are receiving: \u0010{0}\u0001.";
 }
-
+[MinimumApiVersion(213)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
     public override string ModuleVersion => "0.0.3";
     public override string ModuleAuthor => "fernoski#0001 & panda.4179";
-    public GoldMemberConfig? Config { get; set; }
-
+    public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
     private IVipCoreApi? _api;
     private PluginCapability<IVipCoreApi> PluginCapability { get; } = new("vipcore:core");
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
-        if(Config.VipCoreEnabled)
+        if (Config.VipCoreEnabled)
         {
             _api = PluginCapability.Get();
             if (_api == null) return;
@@ -70,6 +71,8 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
     public void OnConfigParsed(GoldMemberConfig config)
     {
         Config = config;
+
+        if (config == null) throw new ArgumentNullException(nameof(config));
 
         if (config.Health < 100)
             config.Health = 100;
@@ -120,99 +123,111 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
 		Server.NextFrame(() =>
 		{
-            if(Config.VipCoreEnabled)
+            if (Config.VipCoreEnabled)
             {
-                if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+                if (Config.GiveItems && Config.Items != null)
                 {
-                    foreach (string item in Config.Items)
+                    if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound)
                     {
-                        if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                        foreach (string item in Config.Items)
                         {
-                            player.GiveNamedItem(item.Trim());
+                            if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
                         }
-                        else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                    }
+                    else if (!_api.IsPistolRound())
+                    {
+                        foreach (string item in Config.Items)
                         {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                        else
-                        {
-                            player.GiveNamedItem(item.Trim());
+                            if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
                         }
                     }
                 }
-                else if (!_api.IsPistolRound())
-                {
-                    foreach (string item in Config.Items)
-                    {
-                        if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                        {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                        else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                        {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                        else
-                        {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                    }
 
+                if (!_api.IsPistolRound())
+                {
                     if (!Config.Money.Contains("++"))
                         moneyServices.Account = int.Parse(Config.Money);
                     else
                         moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
                 }
 
-                if(!_api.IsClientVip(player))
+                if (!_api.IsClientVip(player))
                 {
                     player.Pawn.Value.Health = Config.Health;
                     player.PlayerPawn.Value.ArmorValue = Config.Armor;
                 }
 
-                if(!_api.IsClientVip(player) && Config.GiveVIPToPlayer == true)
+                if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer)
                 {
                     _api.GiveClientTemporaryVip(player, Config.VIPGroup, Config.VIPTime);
                 }
             }
             else
             {
-                if(IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+                if (Config.GiveItems && Config.Items != null)
                 {
-                    foreach (string item in Config.Items)
+                    if (IsPistolRound() && Config.GiveItemsDuringPistolRound)
                     {
-                        if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                        foreach (string item in Config.Items)
                         {
-                            player.GiveNamedItem(item.Trim());
+                            if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
                         }
-                        else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                    }
+                    else if (!IsPistolRound())
+                    {
+                        foreach (string item in Config.Items)
                         {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                        else
-                        {
-                            player.GiveNamedItem(item.Trim());
+                            if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
+                            else
+                            {
+                                player.GiveNamedItem(item.Trim());
+                            }
                         }
                     }
                 }
-                else if (!IsPistolRound())
-                {
-                    foreach (string item in Config.Items)
-                    {
-                        if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                        {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                        else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                        {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                        else
-                        {
-                            player.GiveNamedItem(item.Trim());
-                        }
-                    }
 
+                if (!IsPistolRound())
+                {
                     if (!Config.Money.Contains("++"))
                         moneyServices.Account = int.Parse(Config.Money);
                     else
@@ -222,8 +237,8 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                 player.Pawn.Value.Health = Config.Health;
                 player.PlayerPawn.Value.ArmorValue = Config.Armor;
             }
-            
-            if(Config.SetClanTag == true)
+
+            if(Config.SetClanTag)
             {
                 player.Clan = Config.ClanTag;
             }
