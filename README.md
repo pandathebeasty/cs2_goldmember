@@ -1,6 +1,10 @@
 # CS2 plugin - GoldMember
 ## Receiving benefits for having DNS in nickname
 
+### Requirements
+**VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) => minimum version: ***1.2.7***\
+**Minimum CounterStrikeSharp Version**: ***215***
+
 ### Config is generated automatically by plugin
 - **NameDns**: ["dns1","dns2", etc]
 - **GiveItems**: true //give items to player
@@ -16,5 +20,25 @@
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
 
-**VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) => minimum version: ***1.2.7***\
-**Minimum CounterStrikeSharp Version**: ***215***
+##Suported colors
+- {default}
+- {white}
+- {darkred}
+- {green}
+- {lightyellow}
+- {lightblue}
+- {olive}
+- {lime}
+- {red}
+- {lightpurple}
+- {purple}
+- {grey}
+- {yellow}
+- {gold}
+- {silver}
+- {blue}
+- {darkblue}
+- {bluegrey}
+- {magenta}
+- {lightred}
+- {orange}
