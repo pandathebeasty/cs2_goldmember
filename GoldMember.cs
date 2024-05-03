@@ -44,13 +44,13 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("ClanTag")]
     public string ClanTag { get; set; } = "GoldMember®";
     [JsonPropertyName("BecomeGoldMemberMsg")]
-    public string BecomeGoldMemberMsg { get; set; } = "[red][GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive following benefits:[lime] {1} [default].";
+    public string BecomeGoldMemberMsg { get; set; } = " [red] [GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive following benefits:[lime] {1} [default].";
     [JsonPropertyName("BecomeGoldMemberMsgWithoutItems")]
-    public string BecomeGoldMemberMsgWithoutItems { get; set; } = "[red][GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive benefits.";
+    public string BecomeGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive benefits.";
     [JsonPropertyName("IsGoldMemberMsg")]
-    public string IsGoldMemberMsg { get; set; } = "[red][GoldMember] [default]You are [lime]GoldMember® [default]. You are receiving:[lime] {0} [default].";
+    public string IsGoldMemberMsg { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember® [default]. You are receiving:[lime] {0} [default].";
     [JsonPropertyName("IsGoldMemberMsgWithoutItems")]
-    public string IsGoldMemberMsgWithoutItems { get; set; } = "[red][GoldMember] [default]You are [lime]GoldMember® [default]. [gold]Thanks!";
+    public string IsGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember® [default]. [gold]Thanks!";
     [JsonPropertyName("ConfigVersion")]
     public override int Version { get; set; } = 4;
 }
