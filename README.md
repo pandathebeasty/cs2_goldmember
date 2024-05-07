@@ -11,8 +11,11 @@
 - **GiveItems**: true //give items to player
 - **GiveItemsDuringPistolRound**: true //will give items in PistolRound, only if GiveItems: true
 - **Items**: ["item_name", etc]
+- **GiveHealth**: true //will give health to player
 - **Health**: health_value // ex Health: 100
+- **GiveArmor**: true //will give armor to player
 - **Armor**: armor_value //ex Armor:100
+- **GiveMoney**: true //will give money to player
 - **Money**: "16000" // if "++3000" will add 3000 to current money value
 - **VipCoreEnabled**: true // if VipCore is on server
 - **GiveVIPToPlayer**: true // will give VIP to player
