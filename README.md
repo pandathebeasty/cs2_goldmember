@@ -7,6 +7,7 @@
 
 ## Config is generated automatically by plugin
 - **NameDns**: ["dns1","dns2", etc]
+- **RestrictFlags**: ["@css/vip"] // if player has flags then plugin will not give anything
 - **GiveItems**: true //give items to player
 - **GiveItemsDuringPistolRound**: true //will give items in PistolRound, only if GiveItems: true
 - **Items**: ["item_name", etc]
@@ -16,7 +17,7 @@
 - **VipCoreEnabled**: true // if VipCore is on server
 - **GiveVIPToPlayer**: true // will give VIP to player
 - **VIPGroup**: "vip_group" // which group to give if **GiveVIPToPlayer** is true
-- **VIPTime**: time // depends on TimeMode from VIPCore
+- **VIPTime**: time // depends on TimeMode from VIPCore, if 0 then will give VIP for RoundTime
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
 
