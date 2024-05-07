@@ -5,6 +5,8 @@ using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
+using CounterStrikeSharp.API.Modules.Admin;
+using CounterStrikeSharp.API.Modules.Entities;
 using System;
 using System.Text.Json.Serialization;
 using System.Text.Json;
@@ -19,6 +21,8 @@ public class GoldMemberConfig: BasePluginConfig
 {
     [JsonPropertyName("NameDns")]
     public List<string> NameDns { get; set; } = new List<string>();
+    [JsonPropertyName("RestrictFlags")]
+    public List<string> RestrictFlags { get; set; } = new List<string>();
     [JsonPropertyName("GiveItems")]
     public bool GiveItems { get; set; } = true;
     [JsonPropertyName("GiveItemsDuringPistolRound")]
@@ -52,14 +56,14 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("IsGoldMemberMsgWithoutItems")]
     public string IsGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember® [default]. [gold]Thanks!";
     [JsonPropertyName("ConfigVersion")]
-    public override int Version { get; set; } = 4;
+    public override int Version { get; set; } = 5;
 }
     
 [MinimumApiVersion(215)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.0.5";
+    public override string ModuleVersion => "0.0.6";
     public override string ModuleAuthor => "fernoski0001, panda.4179, GL1TCH1337";
     public override string ModuleDescription => "DNS Benefits(https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
@@ -160,6 +164,11 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         return gamerules.TotalRoundsPlayed == 0 || (halftime && maxrounds / 2 == gamerules.TotalRoundsPlayed) || gamerules.GameRestart;
     }
 
+    public int GetRoundTime()
+    {
+        return ConVar.Find("mp_roundtime")!.GetPrimitiveValue<int>();
+    }
+
 	[GameEventHandler(HookMode.Post)]
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
@@ -189,15 +198,89 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         if (moneyServices == null) return HookResult.Continue;
         if (string.IsNullOrWhiteSpace(Config.Money)) return HookResult.Continue;
 
+        var playerPawn = player.Pawn.Value;
+        var PlayerPawn = player.PlayerPawn.Value;
+        if (playerPawn == null) return HookResult.Continue;
+        if (PlayerPawn == null) return HookResult.Continue;
+
+        bool hasPermission = false;
+
+        foreach (string restrictionFlags in Config.RestrictFlags)
+        {
+            if (AdminManager.PlayerHasPermissions(player, restrictionFlags))
+            {
+                hasPermission = true;
+                break;
+            }
+        }
+
 		Server.NextFrame(() =>
 		{
-            if (Config.VipCoreEnabled)
+            if (hasPermission == false)
             {
-                if (_api != null)
+                if (Config.VipCoreEnabled)
+                {
+                    if (_api != null)
+                    {
+                        if (Config.GiveItems && Config.Items != null)
+                        {
+                            if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound)
+                            {
+                                foreach (string item in Config.Items)
+                                {
+                                    if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                                        player.GiveNamedItem(item.Trim());
+                                    else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                                        player.GiveNamedItem(item.Trim());
+                                    else
+                                        player.GiveNamedItem(item.Trim());
+                                }
+                            }
+                            else if (!_api.IsPistolRound())
+                            {
+                                foreach (string item in Config.Items)
+                                {
+                                    if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
+                                        player.GiveNamedItem(item.Trim());
+                                    else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
+                                        player.GiveNamedItem(item.Trim());
+                                    else
+                                        player.GiveNamedItem(item.Trim());
+                                }
+                            }
+
+                            if (!_api.IsPistolRound())
+                            {
+                                if (!Config.Money.Contains("++"))
+                                    moneyServices.Account = int.Parse(Config.Money);
+                                else
+                                    moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
+                            }
+
+                            if (!_api.IsClientVip(player))
+                            {   
+                                if (playerPawn != null && PlayerPawn != null)
+                                {
+                                    playerPawn.Health = Config.Health;
+                                    PlayerPawn.ArmorValue = Config.Armor;
+                                }
+                            }
+
+                            if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer)
+                            {
+                                if (Config.VIPTime != 0)
+                                    _api.GiveClientTemporaryVip(player, Config.VIPGroup, Config.VIPTime);
+                                else
+                                    _api.GiveClientTemporaryVip(player, Config.VIPGroup, GetRoundTime());
+                            }
+                        }
+                    }
+                }
+                else
                 {
                     if (Config.GiveItems && Config.Items != null)
                     {
-                        if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound)
+                        if (IsPistolRound() && Config.GiveItemsDuringPistolRound)
                         {
                             foreach (string item in Config.Items)
                             {
@@ -209,7 +292,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                                     player.GiveNamedItem(item.Trim());
                             }
                         }
-                        else if (!_api.IsPistolRound())
+                        else if (!IsPistolRound())
                         {
                             foreach (string item in Config.Items)
                             {
@@ -221,83 +304,27 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                                     player.GiveNamedItem(item.Trim());
                             }
                         }
-
-                        if (!_api.IsPistolRound())
-                        {
-                            if (!Config.Money.Contains("++"))
-                                moneyServices.Account = int.Parse(Config.Money);
-                            else
-                                moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
-                        }
-
-                        if (!_api.IsClientVip(player))
-                        {   
-                            var playerPawn = player.Pawn.Value;
-                            var PlayerPawn = player.PlayerPawn.Value;
-
-                            if (playerPawn != null && PlayerPawn != null)
-                            {
-                                playerPawn.Health = Config.Health;
-                                PlayerPawn.ArmorValue = Config.Armor;
-                            }
-                        }
-
-                        if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer)
-                            _api.GiveClientTemporaryVip(player, Config.VIPGroup, Config.VIPTime);
                     }
-                }
-            }
-            else
-            {
-                if (Config.GiveItems && Config.Items != null)
-                {
-                    if (IsPistolRound() && Config.GiveItemsDuringPistolRound)
+
+                    if (!IsPistolRound())
                     {
-                        foreach (string item in Config.Items)
-                        {
-                            if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                                player.GiveNamedItem(item.Trim());
-                            else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                                player.GiveNamedItem(item.Trim());
-                            else
-                                player.GiveNamedItem(item.Trim());
-                        }
+                        if (!Config.Money.Contains("++"))
+                            moneyServices.Account = int.Parse(Config.Money);
+                        else
+                            moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
                     }
-                    else if (!IsPistolRound())
+                    
+                    if (playerPawn != null && PlayerPawn != null)
                     {
-                        foreach (string item in Config.Items)
-                        {
-                            if (player.TeamNum == 2 && item.Trim() == "weapon_molotov")
-                                player.GiveNamedItem(item.Trim());
-                            else if (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade")
-                                player.GiveNamedItem(item.Trim());
-                            else
-                                player.GiveNamedItem(item.Trim());
-                        }
+                        playerPawn.Health = Config.Health;
+                        PlayerPawn.ArmorValue = Config.Armor;
                     }
                 }
 
-                if (!IsPistolRound())
+                if(Config.SetClanTag && Config.ClanTag != null)
                 {
-                    if (!Config.Money.Contains("++"))
-                        moneyServices.Account = int.Parse(Config.Money);
-                    else
-                        moneyServices.Account += int.Parse(Config.Money.Split("++")[1]);
+                    player.Clan = Config.ClanTag;
                 }
-
-                var playerPawn = player.Pawn.Value;
-                var PlayerPawn = player.PlayerPawn.Value;
-                
-                if (playerPawn != null && PlayerPawn != null)
-                {
-                    playerPawn.Health = Config.Health;
-                    PlayerPawn.ArmorValue = Config.Armor;
-                }
-            }
-
-            if(Config.SetClanTag && Config.ClanTag != null)
-            {
-                player.Clan = Config.ClanTag;
             }
         });
         return HookResult.Continue;
