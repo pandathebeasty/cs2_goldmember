@@ -59,19 +59,19 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("BecomeGoldMemberMsgWithoutItems")]
     public string BecomeGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive benefits.";
     [JsonPropertyName("IsGoldMemberMsg")]
-    public string IsGoldMemberMsg { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember® [default]. You are receiving:[lime] {0} [default].";
+    public string IsGoldMemberMsg { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember®[default]. You are receiving:[lime] {0} [default].";
     [JsonPropertyName("IsGoldMemberMsgWithoutItems")]
-    public string IsGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember® [default]. [gold]Thanks!";
+    public string IsGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember®[default]. [gold]Thanks!";
     [JsonPropertyName("ConfigVersion")]
     public override int Version { get; set; } = 6;
 }
     
-[MinimumApiVersion(215)]
+[MinimumApiVersion(228)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
     public override string ModuleVersion => "0.0.7";
-    public override string ModuleAuthor => "fernoski0001, panda.4179, GL1TCH1337";
+    public override string ModuleAuthor => "panda.4179, fernoski0001, GL1TCH1337";
     public override string ModuleDescription => "DNS Benefits(https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
     private IVipCoreApi? _api;
@@ -134,7 +134,6 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         return message;
     }
 
-
     public override void OnAllPluginsLoaded(bool hotReload)
     {
         if (Config.VipCoreEnabled)
@@ -142,10 +141,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
             _api = PluginCapability.Get();
             if (_api == null) return;
 
-            _api.OnCoreReady += () =>
-            {
-                Logger.LogInformation("RUNNING WITH VIP CORE!");
-            };
+            Logger.LogInformation("RUNNING WITH VIP CORE!");
         }
         else
             Logger.LogInformation("RUNNING WITHOUT VIP CORE!");
@@ -162,6 +158,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         UpdateConfig(config);    
     }
+    
 	public bool IsPistolRound()
     {
         var gamerules = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").First().GameRules;
