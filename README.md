@@ -24,7 +24,7 @@
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
 
-## Suported colors
+## Supported colors
 - [default]
 - [white]
 - [darkred]
