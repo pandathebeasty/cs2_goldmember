@@ -3,7 +3,7 @@
 
 ## Requirements
 *(OPTIONAL)* **VIPCore**:  [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) => minimum version: ***1.2.7***\
-**Minimum CounterStrikeSharp Version**: ***215***
+**Minimum CounterStrikeSharp Version**: ***228***
 
 ## Config is generated automatically by plugin
 - **NameDns**: ["dns1","dns2", etc]
