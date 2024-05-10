@@ -1,0 +1,6 @@
+{
+    "gold.BecomeGoldMemberMsg": " [red] [GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive following benefits:[lime] {1} [default].",
+    "gold.BecomeGoldMemberMsgWithoutItems": " [red] [GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive benefits.",
+    "gold.IsGoldMemberMsg": " [red] [GoldMember] [default]You are [lime]GoldMember®[default]. You are receiving:[lime] {0} [default].",
+    "gold.IsGoldMemberMsgWithoutItems": " [red] [GoldMember] [default]You are [lime]GoldMember®[default]. [gold]Thanks!"
+}

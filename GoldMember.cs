@@ -54,23 +54,15 @@ public class GoldMemberConfig: BasePluginConfig
     public bool SetClanTag { get; set; } = false;       
     [JsonPropertyName("ClanTag")]
     public string ClanTag { get; set; } = "GoldMember®";
-    [JsonPropertyName("BecomeGoldMemberMsg")]
-    public string BecomeGoldMemberMsg { get; set; } = " [red] [GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive following benefits:[lime] {1} [default].";
-    [JsonPropertyName("BecomeGoldMemberMsgWithoutItems")]
-    public string BecomeGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]To become [gold]GoldMember® [default]you need to have[lime] {0} [default]in your name to receive benefits.";
-    [JsonPropertyName("IsGoldMemberMsg")]
-    public string IsGoldMemberMsg { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember®[default]. You are receiving:[lime] {0} [default].";
-    [JsonPropertyName("IsGoldMemberMsgWithoutItems")]
-    public string IsGoldMemberMsgWithoutItems { get; set; } = " [red] [GoldMember] [default]You are [lime]GoldMember®[default]. [gold]Thanks!";
     [JsonPropertyName("ConfigVersion")]
-    public override int Version { get; set; } = 6;
+    public override int Version { get; set; } = 7;
 }
     
 [MinimumApiVersion(228)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.0.7";
+    public override string ModuleVersion => "0.0.8";
     public override string ModuleAuthor => "panda.4179, fernoski0001, GL1TCH1337";
     public override string ModuleDescription => "DNS Benefits(https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
@@ -189,14 +181,14 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         if (!isGoldMember)
         {
             player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
-                ? string.Format(Config.BecomeGoldMemberMsgWithoutItems, (object)string.Join(", ", Config.NameDns))
-                : string.Format(Config.BecomeGoldMemberMsg, (object)string.Join(", ", Config.NameDns), itemsString)));
+                ? string.Format(Localizer["gold.BecomeGoldMemberMsgWithoutItems"], (object)string.Join(", ", Config.NameDns))
+                : string.Format(Localizer["gold.BecomeGoldMemberMsg"], (object)string.Join(", ", Config.NameDns), itemsString)));
             return HookResult.Continue;
         }
 
         player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
-                ? Config.IsGoldMemberMsgWithoutItems
-                : string.Format(Config.IsGoldMemberMsg, (object)itemsString)));
+                ? Localizer["gold.IsGoldMemberMsgWithoutItems"]
+                : string.Format(Localizer["gold.IsGoldMemberMsg"], (object)itemsString)));
 
         var moneyServices = player.InGameMoneyServices;
         if (moneyServices == null) return HookResult.Continue;
