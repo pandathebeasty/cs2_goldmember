@@ -40,6 +40,8 @@ public class GoldMemberConfig: BasePluginConfig
     public int Armor { get; set; } = 100;
     [JsonPropertyName("GiveMoney")]
     public bool GiveMoney { get; set; } = true;
+    [JsonPropertyName("GiveMoneyInPistolRounds")]
+    public bool GiveMoneyInPistolRounds { get; set; } = false;
     [JsonPropertyName("Money")]
     public string Money { get; set; } = "1000";
     [JsonPropertyName("VipCoreEnabled")]
@@ -55,14 +57,14 @@ public class GoldMemberConfig: BasePluginConfig
     [JsonPropertyName("ClanTag")]
     public string ClanTag { get; set; } = "GoldMember®";
     [JsonPropertyName("ConfigVersion")]
-    public override int Version { get; set; } = 7;
+    public override int Version { get; set; } = 8;
 }
     
 [MinimumApiVersion(228)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.0.8";
+    public override string ModuleVersion => "0.1.0";
     public override string ModuleAuthor => "panda.4179, fernoski0001, GL1TCH1337";
     public override string ModuleDescription => "DNS Benefits(https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
@@ -70,6 +72,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
     private PluginCapability<IVipCoreApi> PluginCapability { get; } = new("vipcore:core");
     private static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
     private static readonly string CfgPath = Path.Combine(Server.GameDirectory, "csgo", "addons", "counterstrikesharp", "configs", "plugins", AssemblyName, $"{AssemblyName}.json");
+    private readonly HashSet<ulong> _playersGivenVIP = new();
 
     private void UpdateConfig<T>(T config) where T : BasePluginConfig, new()
     {
@@ -239,6 +242,10 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                             }
                         }
                     }
+                    if (_api.IsPistolRound() && Config.GiveMoney && Config.GiveMoneyInPistolRounds)
+                    {
+                        moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);
+                    }
 
                     if (!_api.IsPistolRound() && Config.GiveMoney)
                     {
@@ -256,9 +263,10 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                         }
                     }
 
-                    if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer)
+                    if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer && player.AuthorizedSteamID != null)
                     {
                         _api.GiveClientTemporaryVip(player, Config.VIPGroup, Config.VIPTime != 0 ? Config.VIPTime : GetRoundTime());
+                        _playersGivenVIP.Add(player.AuthorizedSteamID.SteamId64);
                     }
                 }
                 else
@@ -287,6 +295,11 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                         }
                     }
 
+                    if (IsPistolRound() && Config.GiveMoney && Config.GiveMoneyInPistolRounds)
+                    {
+                        moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);
+                    }
+
                     if (!IsPistolRound() && Config.GiveMoney)
                     {
                         moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);
@@ -307,6 +320,42 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                 }
             }
         });
+        return HookResult.Continue;
+    }
+
+    [GameEventHandler]
+    public HookResult OnEventRoundEnd(EventRoundEnd @event, GameEventInfo info)
+    {
+        Utilities.GetPlayers().ForEach(player =>
+        {
+            if (player != null 
+                && _api != null 
+                && _api.IsClientVip(player)
+                && player.AuthorizedSteamID != null 
+                && _playersGivenVIP.Contains(player.AuthorizedSteamID.SteamId64)
+                && Config.VIPTime == 0)
+            {
+                _api.RemoveClientVip(player);
+                _playersGivenVIP.Remove(player.AuthorizedSteamID.SteamId64);
+            }
+        });
+        return HookResult.Continue;
+    }
+
+    [GameEventHandler]
+    public HookResult OnPlayerDisconnect(EventPlayerDisconnect @event, GameEventInfo info)
+    {
+        CCSPlayerController? player = @event.Userid;
+
+        if (player != null 
+            && _api != null 
+            && _api.IsClientVip(player)
+            && player.AuthorizedSteamID != null 
+            && _playersGivenVIP.Contains(player.AuthorizedSteamID.SteamId64) )
+        {
+            _api.RemoveClientVip(player);
+            _playersGivenVIP.Remove(player.AuthorizedSteamID.SteamId64);
+        }
         return HookResult.Continue;
     }
 }
