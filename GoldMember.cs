@@ -214,7 +214,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                 player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
                     ? string.Format(Localizer["gold.BecomeGoldMemberMsgWithoutItems"], (object)string.Join(", ", Config.NameDns))
                     : string.Format(Localizer["gold.BecomeGoldMemberMsg"], (object)string.Join(", ", Config.NameDns), itemsString)));
-            });
+            }, TimerFlags.REPEAT);
             return;
         }
 
@@ -225,7 +225,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                 player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
                     ? Localizer["gold.IsGoldMemberMsgWithoutItems"]
                     : string.Format(Localizer["gold.IsGoldMemberMsg"], (object)itemsString)));
-            });
+            }, TimerFlags.REPEAT);
         }
     }
 
