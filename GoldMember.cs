@@ -159,10 +159,13 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
             AddCommandListener($"css_{command}", (player, args) => RestrictCommands(player, command));
         }
 
-        foreach (var player in Utilities.GetPlayers())
+        AddTimer(5.0f, () =>
         {
-            PrintAds(player);
-        }
+            foreach (var player in Utilities.GetPlayers())
+            {
+                PrintAds(player);
+            }
+        });
     }
 
     public void OnConfigParsed(GoldMemberConfig config)
