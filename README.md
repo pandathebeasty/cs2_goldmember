@@ -23,26 +23,29 @@
 - **VIPTime**: time // depends on TimeMode from VIPCore, if 0 then will give VIP for RoundTime
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
+- **ShowAds** : true // either to show or not the ads
+- **AdsTimer** : 30 // interval of the ads
+- **RestrictedCommands**: [] // which commands to be restricted to Gold Members only
 
 ## Supported colors
-- [default]
-- [white]
-- [darkred]
-- [green]
-- [lightyellow]
-- [lightblue]
-- [olive]
-- [lime]
-- [red]
-- [lightpurple]
-- [purple]
-- [grey]
-- [yellow]
-- [gold]
-- [silver]
-- [blue]
-- [darkblue]
-- [bluegrey]
-- [magenta]
-- [lightred]
-- [orange]
+- {default}
+- {white}
+- {darkred}
+- {green}
+- {lightyellow}
+- {lightblue}
+- {olive}
+- {lime}
+- {red}
+- {lightpurple}
+- {purple}
+- {grey}
+- {yellow}
+- {gold}
+- {silver}
+- {blue}
+- {darkblue}
+- {bluegrey}
+- {magenta}
+- {lightred}
+- {orange}
