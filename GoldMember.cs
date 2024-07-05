@@ -6,18 +6,14 @@ using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Admin;
-using CounterStrikeSharp.API.Modules.Entities;
 using CounterStrikeSharp.API.Modules.Timers;
-using System;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.Encodings.Web;
-using System.Linq;
 using System.Reflection;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using VipCoreApi;
-using CounterStrikeSharp.API.Modules.Commands;
 
 namespace GoldMember;
 public class GoldMemberConfig: BasePluginConfig
@@ -68,12 +64,12 @@ public class GoldMemberConfig: BasePluginConfig
     public override int Version { get; set; } = 9;
 }
     
-[MinimumApiVersion(228)]
+[MinimumApiVersion(246)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.1";
-    public override string ModuleAuthor => "panda.4179";
+    public override string ModuleVersion => "0.1.2";
+    public override string ModuleAuthor => "panda.";
     public override string ModuleDescription => "DNS Benefits(https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
     private IVipCoreApi? _api;
@@ -273,9 +269,11 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
             }
         }
 
+        bool isGoldMember = Config.NameDns.Any(nameDns => player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0);
+		
 		Server.NextFrame(() =>
 		{
-            if (!hasPermission)
+            if (!hasPermission || isGoldMember)
             {
                 if (_api != null && Config.VipCoreEnabled)
                 {
@@ -371,7 +369,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                     }
                 }
 
-                if(Config.SetClanTag && Config.ClanTag != null)
+                if(Config.SetClanTag && Config.ClanTag != null && isGoldMember)
                 {
                     player.Clan = Config.ClanTag;
                 }
