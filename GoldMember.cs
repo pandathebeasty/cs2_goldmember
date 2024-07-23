@@ -230,14 +230,14 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         return HookResult.Continue;
     }
 
-	[GameEventHandler]
+	[GameEventHandler(HookMode.Post)]
     public HookResult OnPlayerConnect(EventPlayerConnectFull @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
 
         if (player == null) return HookResult.Continue;
         
-        if (player != null && !player.IsBot && !player.IsHLTV && player.IsValid)
+        if (player != null && !player.IsBot && !player.IsHLTV)
             PrintAds(player);
         
         return HookResult.Continue;
