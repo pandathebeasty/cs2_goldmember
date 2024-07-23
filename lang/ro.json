@@ -1,0 +1,7 @@
+{
+    "gold.BecomeGoldMemberMsg": " {red}[GoldMember] {default}Pentru a deveni {gold}GoldMember® {default}trebuie să ai{lime} {0} {default}în nume pentru a primi următoarele beneficii:{lime} {1} {default}.",
+    "gold.BecomeGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Pentru a deveni {gold}GoldMember® {default}trebuie să ai{lime} {0} {default}în nume pentru a primi beneficii.",
+    "gold.IsGoldMemberMsg": " {red}[GoldMember] {default}Ești {lime}GoldMember®{default}. Primești:{lime} {0} {default}.",
+    "gold.IsGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Ești {lime}GoldMember®{default}. {gold}Mulțumim!",
+    "gold.RestrictedCommand": " {red}[GoldMember] {default}Această comandă poate fi utilizată doar de {lime}Gold Members{default}."
+}

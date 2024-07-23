@@ -1,0 +1,7 @@
+{
+    "gold.BecomeGoldMemberMsg": " {red}[GoldMember] {default}Чтобы стать {gold}GoldMember® {default}вам нужно иметь{lime} {0} {default}в вашем имени, чтобы получить следующие преимущества:{lime} {1} {default}.",
+    "gold.BecomeGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Чтобы стать {gold}GoldMember® {default}вам нужно иметь{lime} {0} {default}в вашем имени, чтобы получить преимущества.",
+    "gold.IsGoldMemberMsg": " {red}[GoldMember] {default}Вы {lime}GoldMember®{default}. Вы получаете:{lime} {0} {default}.",
+    "gold.IsGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Вы {lime}GoldMember®{default}. {gold}Спасибо!",
+    "gold.RestrictedCommand": " {red}[GoldMember] {default}Эту команду могут использовать только{lime}Gold Members{default}."
+}
