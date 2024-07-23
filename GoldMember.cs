@@ -68,7 +68,7 @@ public class GoldMemberConfig: BasePluginConfig
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.3";
+    public override string ModuleVersion => "0.1.2";
     public override string ModuleAuthor => "panda";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
@@ -236,13 +236,13 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         CCSPlayerController? player = @event.Userid;
 
         if (player == null) return HookResult.Continue;
-
+        
         if (player != null && !player.IsBot && !player.IsHLTV && player.IsValid)
             PrintAds(player);
         
         return HookResult.Continue;
     }
-    
+
 	[GameEventHandler(HookMode.Post)]
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
