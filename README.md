@@ -24,7 +24,7 @@
 - **SetClanTag**: true // will set ClanTag to player
 - **ClanTag** : "[GoldMember]"
 - **ShowAds** : true // either to show or not the ads
-- **AdsTimer** : 30 // interval of the ads
+- **AdsTimer** : 60 // interval of the ads
 - **RestrictedCommands**: [] // which commands to be restricted to Gold Members only
 
 ## Supported colors
