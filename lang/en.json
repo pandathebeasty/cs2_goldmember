@@ -3,5 +3,5 @@
     "gold.BecomeGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}To become {gold}GoldMember® {default}you need to have{lime} {0} {default}in your name to receive benefits.",
     "gold.IsGoldMemberMsg": " {red}[GoldMember] {default}You are {lime}GoldMember®{default}. You are receiving:{lime} {0} {default}.",
     "gold.IsGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}You are {lime}GoldMember®{default}. {gold}Thanks!",
-    "gold.RestrictedCommand": " {red}[GoldMember] {default}This command can be used only by{lime}Gold Members{default}."
+    "gold.RestrictedCommand": " {red}[GoldMember] {default}This command can be used only by {lime}Gold Members{default}."
 }
