@@ -125,16 +125,16 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
     private string ReplaceColorPlaceholders(string message)
     {
-
         if (!string.IsNullOrEmpty(message) && message[0] != ' ')
         {
             message = " " + message;
         }
-        
+
         foreach (var colorPlaceholder in ColorMap)
         {
             message = message.Replace(colorPlaceholder.Key, colorPlaceholder.Value.ToString());
         }
+
         return message;
     }
 
@@ -144,15 +144,20 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         {
             _api = PluginCapability.Get();
             if (_api == null) return;
-            Logger.LogInformation("RUNNING WITH VIP CORE!");
+            Logger.LogInformation("\u001b[1;32mRunning with \u001b[1;33mVIPCore\u001b[1;32m!");
         }
         else
-            Logger.LogInformation("RUNNING WITHOUT VIP CORE!");
+            Logger.LogInformation("\u001b[1;33mRunning without \u001b[1;31mVIPCore\u001b[1;33m!");
 
         foreach (string command in Config.RestrictedCommands)
         {
             AddCommandListener($"css_{command}", (player, args) => RestrictCommands(player, command));
         }
+        
+        RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerConnectFull~ \u001b[1;32mregistered!");
+        RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+        Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerSpawn~ \u001b[1;32mregistered!");
     }
 
     public void OnConfigParsed(GoldMemberConfig config)
@@ -161,7 +166,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         if (config.Health < 100)
             config.Health = 100;
-
+        
         UpdateConfig(config);    
     }
     
@@ -180,45 +185,44 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         return ConVar.Find("mp_roundtime")!.GetPrimitiveValue<int>();
     }
 
-    public void PrintAds(CCSPlayerController? player)
+    public void PrintAds()
     {
-        if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV)
-            return;
-
-        bool isGoldMember = Config.NameDns.Any(nameDns => player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0);
-
         string itemsString = string.Join(", ", Config.Items.Select(item => new CultureInfo("en-US", false).TextInfo.ToTitleCase(item.Replace("weapon_", ""))));
-
+        
         if (float.IsNaN(Config.AdsTimer))
             Config.AdsTimer = 60.0f;
-
-        if (!isGoldMember && Config.ShowAds)
+        
+        var players = Utilities.GetPlayers().Where(x => x is { IsBot: false, Connected: PlayerConnectedState.PlayerConnected });
+        
+        foreach (var player in players)
         {
-            AddTimer(Config.AdsTimer,() =>
+            bool isGoldMember = Config.NameDns.Any(nameDns => player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV)
+            return;
+
+            if (!isGoldMember && Config.ShowAds)
             {
                 player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
                     ? string.Format(Localizer["gold.BecomeGoldMemberMsgWithoutItems"], (object)string.Join(", ", Config.NameDns))
                     : string.Format(Localizer["gold.BecomeGoldMemberMsg"], (object)string.Join(", ", Config.NameDns), itemsString)));
-            }, TimerFlags.REPEAT);
-            return;
-        }
-
-        if(Config.ShowAds)
-        {
-            AddTimer(Config.AdsTimer, () =>
+                return;
+            }
+            
+            if(Config.ShowAds)
             {
                 player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
                     ? Localizer["gold.IsGoldMemberMsgWithoutItems"]
                     : string.Format(Localizer["gold.IsGoldMemberMsg"], (object)itemsString)));
-            }, TimerFlags.REPEAT);
+            }
         }
     }
     
-    public HookResult RestrictCommands(CCSPlayerController? player, string command)
+    private HookResult RestrictCommands(CCSPlayerController? player, string command)
     {
         if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV)
             return HookResult.Continue;
-
+        
         bool isGoldMember = Config.NameDns.Any(nameDns => player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0);
 
         if (!isGoldMember)
@@ -229,26 +233,25 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         
         return HookResult.Continue;
     }
-
-	[GameEventHandler(HookMode.Post)]
-    public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+    
+    private HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
-        if (player == null || player.IsBot || player.IsHLTV) return HookResult.Continue;
+        if (player == null || player.IsBot || player.IsHLTV || !player.IsValid) return HookResult.Continue;
         
-        PrintAds(player);
+        if (player.IsValid)
+            AddTimer(Config.AdsTimer, PrintAds, TimerFlags.REPEAT);
         
         return HookResult.Continue;
     }
-	
-	[GameEventHandler(HookMode.Post)]
+    
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
 
         if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV)
             return HookResult.Continue;
-
+        
         if (_api == null) return HookResult.Continue;    
 
         var moneyServices = player.InGameMoneyServices;
