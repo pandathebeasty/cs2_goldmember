@@ -17,6 +17,7 @@
 - **Armor**: armor_value //ex Armor:100
 - **GiveMoney**: true //will give money to player
 - **Money**: "16000" // if "++3000" will add 3000 to current money value
+- **MaxMoney**: 16000 //maximum amount of money that a player can have
 - **VipCoreEnabled**: true // if VipCore is on server
 - **GiveVIPToPlayer**: true // will give VIP to player
 - **VIPGroup**: "vip_group" // which group to give if **GiveVIPToPlayer** is true
@@ -25,6 +26,7 @@
 - **ClanTag** : "[GoldMember]"
 - **ShowAds** : true // either to show or not the ads
 - **AdsTimer** : 60 // interval of the ads
+- **DebugLogs**: false //if true will create logs
 - **RestrictedCommands**: [] // which commands to be restricted to Gold Members only
 
 ## Supported colors
