@@ -42,6 +42,8 @@ public class GoldMemberConfig: BasePluginConfig
     public bool GiveMoneyInPistolRounds { get; set; } = false;
     [JsonPropertyName("Money")]
     public string Money { get; set; } = "1000";
+    [JsonPropertyName("MaxMoney")]
+    public int MaxMoney { get; set; } = 16000;
     [JsonPropertyName("VipCoreEnabled")]
     public bool VipCoreEnabled { get; set; } = true;
     [JsonPropertyName("GiveVIPToPlayer")]
@@ -60,30 +62,32 @@ public class GoldMemberConfig: BasePluginConfig
     public float AdsTimer { get; set; } = 60.0f;
     [JsonPropertyName("RestrictedCommands")]
     public List<string> RestrictedCommands { get; set; } = new List<string>();
+    [JsonPropertyName("DebugLogs")]
+    public bool DebugLogs { get; set; } = false;
     [JsonPropertyName("ConfigVersion")]
-    public override int Version { get; set; } = 10;
+    public override int Version { get; set; } = 12;
 }
     
-[MinimumApiVersion(246)]
+[MinimumApiVersion(236)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.2";
-    public override string ModuleAuthor => "panda";
+    public override string ModuleVersion => "0.1.3";
+    public override string ModuleAuthor => "panda.";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
-    private IVipCoreApi? _api;
-    private PluginCapability<IVipCoreApi> PluginCapability { get; } = new("vipcore:core");
-    private static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
-    private static readonly string CfgPath = Path.Combine(Server.GameDirectory, "csgo", "addons", "counterstrikesharp", "configs", "plugins", AssemblyName, $"{AssemblyName}.json");
+    public IVipCoreApi? _api;
+    public PluginCapability<IVipCoreApi> PluginCapability { get; } = new("vipcore:core");
+    public static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
+    public static readonly string CfgPath = Path.Combine(Server.GameDirectory, "csgo", "addons", "counterstrikesharp", "configs", "plugins", AssemblyName, $"{AssemblyName}.json");
     
-    private void UpdateConfig<T>(T config) where T : BasePluginConfig, new()
+    public void UpdateConfig<T>(T config) where T : BasePluginConfig, new()
     {
         var newCfgVersion = new T().Version;
 
         if (config.Version == newCfgVersion)
             return;
-
+        
         config.Version = newCfgVersion;
         
         var options = new JsonSerializerOptions
@@ -98,7 +102,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         Console.WriteLine($"Configuration file updated for V{newCfgVersion}.");
     }
     
-    private static readonly Dictionary<string, char> ColorMap = new Dictionary<string, char>
+    public static readonly Dictionary<string, char> ColorMap = new Dictionary<string, char>
     {
         { "{default}", ChatColors.Default },
         { "{white}", ChatColors.White },
@@ -123,51 +127,64 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         { "{orange}", ChatColors.Orange }
     };
 
-    private string ReplaceColorPlaceholders(string message)
+    public string ReplaceColorPlaceholders(string message)
     {
         if (!string.IsNullOrEmpty(message) && message[0] != ' ')
         {
             message = " " + message;
         }
-
         foreach (var colorPlaceholder in ColorMap)
         {
             message = message.Replace(colorPlaceholder.Key, colorPlaceholder.Value.ToString());
         }
-
         return message;
     }
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
+        RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
+
+        if (Config.DebugLogs == true)
+        {
+            Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerConnectFull~ \u001b[1;32mregistered!");
+            Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerSpawn~ \u001b[1;32mregistered!");
+        }
+
         if (Config.VipCoreEnabled)
         {
             _api = PluginCapability.Get();
             if (_api == null) return;
-            Logger.LogInformation("\u001b[1;32mRunning with \u001b[1;33mVIPCore\u001b[1;32m!");
+            
+            if (Config.DebugLogs == true) Logger.LogInformation("\u001b[1;32mRunning with \u001b[1;33mVIPCore\u001b[1;32m!");
         }
         else
-            Logger.LogInformation("\u001b[1;33mRunning without \u001b[1;31mVIPCore\u001b[1;33m!");
+        {
+            if (Config.DebugLogs == true) Logger.LogInformation("\u001b[1;33mRunning without \u001b[1;31mVIPCore\u001b[1;33m!");
+        }    
 
         foreach (string command in Config.RestrictedCommands)
         {
-            AddCommandListener($"css_{command}", (player, args) => RestrictCommands(player, command));
+            AddCommandListener($"{command}", (player, args) => RestrictCommands(player, command));
         }
-        
-        RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
-        Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerConnectFull~ \u001b[1;32mregistered!");
-        RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
-        Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerSpawn~ \u001b[1;32mregistered!");
     }
 
     public void OnConfigParsed(GoldMemberConfig config)
     {
         Config = config ?? throw new ArgumentNullException(nameof(config));
+        UpdateConfig(config);  
+        
+        if (Config.DebugLogs == true)
+        {
+            string configJson = JsonSerializer.Serialize(Config, new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+            Logger.LogInformation("Loaded Config:\n{ConfigJson}", configJson);
+        }
 
         if (config.Health < 100)
+        {
+            if (Config.DebugLogs == true) Logger.LogInformation("Health value less than 100, setting it back to default.");
             config.Health = 100;
-        
-        UpdateConfig(config);    
+        }  
     }
     
 	public bool IsPistolRound()
@@ -184,33 +201,57 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
     {
         return ConVar.Find("mp_roundtime")!.GetPrimitiveValue<int>();
     }
+        
+    public bool IsGoldMember(CCSPlayerController? player)
+    {
+        if (player == null || !player.IsValid || player.IsBot || player.IsHLTV) return false;
+        
+        if (Config.NameDns == null || Config.NameDns.Count == 0) return false;
+        
+        foreach (var nameDns in Config.NameDns)
+        {
+            if (player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                if (Config.DebugLogs == true) Logger.LogInformation($"Player '{player.PlayerName}' matches DNS '{nameDns}' and is GoldMember.");
+                return true;
+            }
+        }
+
+        if (Config.DebugLogs == true) Logger.LogInformation($"Player '{player.PlayerName}' does not match any DNS and is not GoldMember.");
+
+        return false;
+    }
 
     public void PrintAds()
     {
         string itemsString = string.Join(", ", Config.Items.Select(item => new CultureInfo("en-US", false).TextInfo.ToTitleCase(item.Replace("weapon_", ""))));
         
         if (float.IsNaN(Config.AdsTimer))
+        {
+            if (Config.DebugLogs == true) Logger.LogInformation($"AdsTimer setting to 60 seconds by default.");
+
             Config.AdsTimer = 60.0f;
+        }
         
         var players = Utilities.GetPlayers().Where(x => x is { IsBot: false, Connected: PlayerConnectedState.PlayerConnected });
         
         foreach (var player in players)
         {
-            bool isGoldMember = Config.NameDns.Any(nameDns => player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0);
-
-            if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV)
-            return;
-
-            if (!isGoldMember && Config.ShowAds)
+            if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV) return;
+            
+            if (!IsGoldMember(player) && Config.ShowAds)
             {
+                if (Config.DebugLogs == true)  Logger.LogInformation($"Displaying ad to non-GoldMember '{player.PlayerName}'.");
+
                 player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
                     ? string.Format(Localizer["gold.BecomeGoldMemberMsgWithoutItems"], (object)string.Join(", ", Config.NameDns))
                     : string.Format(Localizer["gold.BecomeGoldMemberMsg"], (object)string.Join(", ", Config.NameDns), itemsString)));
                 return;
             }
-            
             if(Config.ShowAds)
             {
+                if (Config.DebugLogs == true)  Logger.LogInformation($"Displaying ad to GoldMember '{player.PlayerName}'.");
+
                 player.PrintToChat(ReplaceColorPlaceholders(string.IsNullOrWhiteSpace(itemsString)
                     ? Localizer["gold.IsGoldMemberMsgWithoutItems"]
                     : string.Format(Localizer["gold.IsGoldMemberMsg"], (object)itemsString)));
@@ -218,28 +259,26 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         }
     }
     
-    private HookResult RestrictCommands(CCSPlayerController? player, string command)
+    public HookResult RestrictCommands(CCSPlayerController? player, string command)
     {
-        if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV)
-            return HookResult.Continue;
-        
-        bool isGoldMember = Config.NameDns.Any(nameDns => player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0);
+        if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV) return HookResult.Continue;
 
-        if (!isGoldMember)
+        if (!IsGoldMember(player))
         {
+            if (Config.DebugLogs == true) Logger.LogInformation($"Restrict {command} for player: '{player.PlayerName}'.");
+            
             player.PrintToChat(ReplaceColorPlaceholders(Localizer["gold.RestrictedCommand"]));
             return HookResult.Continue;
         }
-        
         return HookResult.Continue;
     }
     
-    private HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+    public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
         if (player == null || player.IsBot || player.IsHLTV || !player.IsValid) return HookResult.Continue;
         
-        if (player.IsValid)
+        if (player.IsValid) 
             AddTimer(Config.AdsTimer, PrintAds, TimerFlags.REPEAT);
         
         return HookResult.Continue;
@@ -248,151 +287,211 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
+        
+        if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV) return HookResult.Continue;
 
-        if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV)
-            return HookResult.Continue;
+        if (Config.DebugLogs == true) Logger.LogInformation($"Player '{player.PlayerName}' spawned.");
         
         if (_api == null) return HookResult.Continue;    
-
+        
         var moneyServices = player.InGameMoneyServices;
         if (moneyServices == null) return HookResult.Continue;
-        if (string.IsNullOrWhiteSpace(Config.Money)) return HookResult.Continue;
 
+        if (string.IsNullOrWhiteSpace(Config.Money))
+            Config.Money = "0";
+        
         var playerPawn = player.Pawn.Value;
         var PlayerPawn = player.PlayerPawn.Value;
         if (playerPawn == null) return HookResult.Continue;
         if (PlayerPawn == null) return HookResult.Continue;
 
         bool hasPermission = Config.RestrictFlags.Any(restrictionFlags => AdminManager.PlayerHasPermissions(player, restrictionFlags));
-        bool isGoldMember = Config.NameDns.Any(nameDns => player.PlayerName.IndexOf(nameDns, StringComparison.OrdinalIgnoreCase) >= 0);
+        if (hasPermission == true) return HookResult.Continue;
         
-        if (isGoldMember == true)
+        if (!IsGoldMember(player)) 
         {
-            if (hasPermission == false)
+            if (Config.DebugLogs == true) Logger.LogInformation($"Player '{player.PlayerName}' is not GoldMember.");
+
+            return HookResult.Continue;
+        }
+        
+        Server.NextFrame(() =>
+        {
+            if (Config.VipCoreEnabled == true)
             {
-                Server.NextFrame(() =>
+                if (Config.GiveItems == true && Config.Items != null)
                 {
-                    if (Config.VipCoreEnabled)
+                    if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound == true && !_api.IsClientVip(player))
                     {
-                        if (Config.GiveItems && Config.Items != null)
+                        foreach (string item in Config.Items)
                         {
-                            if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound)
-                            {
-                                foreach (string item in Config.Items)
-                                {
-                                    if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
-                                        player.GiveNamedItem(item.Trim());
-                                    else
-                                        player.GiveNamedItem(item.Trim());
-                                }
-                            }
-                            else if (!_api.IsPistolRound())
-                            {
-                                foreach (string item in Config.Items)
-                                {
-                                    if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
-                                        player.GiveNamedItem(item.Trim());
-                                    else
-                                        player.GiveNamedItem(item.Trim());
-                                }
-                            }
-                        }
+                            if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
+                                player.GiveNamedItem(item.Trim());
+                            else
+                                player.GiveNamedItem(item.Trim());
 
-                        if (_api.IsPistolRound() && Config.GiveMoney && Config.GiveMoneyInPistolRounds)
-                        {
-                            moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);
-                            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+                            if (Config.DebugLogs == true) Logger.LogInformation($"Gave item: {item} to player: {player.PlayerName}.[PistolRound]");     
                         }
-
-                        if (!_api.IsPistolRound() && Config.GiveMoney)
-                        {
-                            moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);
-                            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
-                        }
-                        
-                        if (!_api.IsClientVip(player))
-                        {   
-                            if (playerPawn != null && PlayerPawn != null)
-                            {
-                                if (Config.GiveHealth)
-                                {
-                                    playerPawn.Health = Config.Health;
-                                    Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
-                                }
-                                
-                                if (Config.GiveArmor)
-                                {    
-                                    PlayerPawn.ArmorValue = Config.Armor;
-                                    Utilities.SetStateChanged(PlayerPawn, "CCSPlayerPawn", "m_ArmorValue");
-                                }   PlayerPawn.ArmorValue = Config.Armor;
-                            }
-                        }
-
-                        if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer)
-                            _api.GiveClientTemporaryVip(player, Config.VIPGroup, Config.VIPTime != 0 ? Config.VIPTime : GetRoundTime());
                     }
-                    else
+                    else if (!_api.IsPistolRound() && !_api.IsClientVip(player))
                     {
-                        if (Config.GiveItems && Config.Items != null)
+                        foreach (string item in Config.Items)
                         {
-                            if (IsPistolRound() && Config.GiveItemsDuringPistolRound)
-                            {
-                                foreach (string item in Config.Items)
-                                {
-                                    if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
-                                        player.GiveNamedItem(item.Trim());
-                                    else
-                                        player.GiveNamedItem(item.Trim());
-                                }
-                            }
-                            else if (!IsPistolRound())
-                            {
-                                foreach (string item in Config.Items)
-                                {
-                                    if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
-                                        player.GiveNamedItem(item.Trim());
-                                    else
-                                        player.GiveNamedItem(item.Trim());
-                                }
-                            }
+                            if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
+                                player.GiveNamedItem(item.Trim());
+                            else
+                                player.GiveNamedItem(item.Trim());
+                            
+                            if (Config.DebugLogs == true) Logger.LogInformation($"Gave item: {item} to player: {player.PlayerName}.[NormalRound]");    
                         }
-
-                        if (IsPistolRound() && Config.GiveMoney && Config.GiveMoneyInPistolRounds)
-                        {
-                            moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);
-                            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
-                        }
-                        
-                        if (!IsPistolRound() && Config.GiveMoney)
-                        {
-                            moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);
-                            Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
-                        }
-                        
-                        if (playerPawn != null && PlayerPawn != null)
-                        {
-                            if (Config.GiveHealth)
-                            {
-                                playerPawn.Health = Config.Health;
-                                Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
-                            }
-
-                            if (Config.GiveArmor)
-                            {    
-                                PlayerPawn.ArmorValue = Config.Armor;
-                                Utilities.SetStateChanged(PlayerPawn, "CCSPlayerPawn", "m_ArmorValue");
-                            }
-                        }
+                    }
+                }
+                
+                if (_api.IsPistolRound() && Config.GiveMoney == true && Config.GiveMoneyInPistolRounds == true)
+                {
+                    var money = Config.Money;
+                    moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);;
+                    
+                    if (moneyServices.Account > Config.MaxMoney) moneyServices.Account = Config.MaxMoney;
+                    
+                    if (Config.DebugLogs == true) 
+                    {
+                        Logger.LogInformation($"Gave {money}$ to {player.PlayerName}.[PistolRound]");
+                        Logger.LogInformation($"Player {player.PlayerName} has {moneyServices.Account}$.[PistolRound]");
                     }
                     
-                    if(Config.SetClanTag && Config.ClanTag != null && isGoldMember)
+                    Utilities.SetStateChanged(player, "CCSPlayerController", "m_pInGameMoneyServices");
+                }
+                
+                if (!_api.IsPistolRound() && Config.GiveMoney == true)
+                {
+                    var money = Config.Money;
+                    moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);;
+                    
+                    if (moneyServices.Account > Config.MaxMoney) moneyServices.Account = Config.MaxMoney;
+                    
+                    if (Config.DebugLogs == true) 
                     {
-                        player.Clan = Config.ClanTag;
-                        Utilities.SetStateChanged(player, "CCSPlayerController", "m_szClan");
+                        Logger.LogInformation($"Gave {money}$ to {player.PlayerName}.[NormalRound]");
+                        Logger.LogInformation($"Player {player.PlayerName} has {moneyServices.Account}$.[NormalRound]");
                     }
-                });
+                }
+                
+                if (!_api.IsClientVip(player))
+                {   
+                    if (playerPawn != null && PlayerPawn != null)
+                    {
+                        if (Config.GiveHealth == true)
+                        {
+                            if (Config.DebugLogs == true) Logger.LogInformation($"Setting health for {player.PlayerName} to {Config.Health}.");
+
+                            playerPawn.Health = Config.Health;
+                            Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+                        }
+                        
+                        if (Config.GiveArmor == true)
+                        {   
+                            if (Config.DebugLogs == true) Logger.LogInformation($"Setting armor for {player.PlayerName} to {Config.Armor}.");
+
+                            PlayerPawn.ArmorValue = Config.Armor;
+                            Utilities.SetStateChanged(PlayerPawn, "CCSPlayerPawn", "m_ArmorValue");
+                        }
+                    }
+                }
+                
+                if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer  == true)
+                {
+                    if (Config.DebugLogs == true) Logger.LogInformation($"Gave VIP: {Config.VIPGroup} to player: {player.PlayerName}");   
+
+                    _api.GiveClientTemporaryVip(player, Config.VIPGroup, Config.VIPTime != 0 ? Config.VIPTime : GetRoundTime());
+                }
             }
-        }
+            else
+            {
+                if (Config.GiveItems == true && Config.Items != null)
+                {
+                    if (IsPistolRound() && Config.GiveItemsDuringPistolRound == true)
+                    {
+                        foreach (string item in Config.Items)
+                        {
+                            if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
+                                player.GiveNamedItem(item.Trim());
+                            else
+                                player.GiveNamedItem(item.Trim());
+
+                            if (Config.DebugLogs == true) Logger.LogInformation($"Gave item: {item} to player: {player.PlayerName}.[PistolRound]");       
+                        }
+                    }
+                    else if (!IsPistolRound())
+                    {
+                        foreach (string item in Config.Items)
+                        {
+                            if ((player.TeamNum == 2 && item.Trim() == "weapon_molotov") || (player.TeamNum == 3 && item.Trim() == "weapon_incgrenade"))
+                                player.GiveNamedItem(item.Trim());
+                            else
+                                player.GiveNamedItem(item.Trim());
+
+                            if (Config.DebugLogs == true) Logger.LogInformation($"Gave item: {item} to player: {player.PlayerName}.[NormalRound]");       
+                        }
+                    }
+                }
+                
+                if (IsPistolRound() && Config.GiveMoney == true && Config.GiveMoneyInPistolRounds == true)
+                {
+                    var money = Config.Money;
+                    moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);;
+                    
+                    if (moneyServices.Account > Config.MaxMoney) moneyServices.Account = Config.MaxMoney;
+                    
+                    if (Config.DebugLogs == true) 
+                    {
+                        Logger.LogInformation($"Gave {money}$ to {player.PlayerName}.[PistolRound]");
+                        Logger.LogInformation($"Player {player.PlayerName} has {moneyServices.Account}$.[PistolRound]");
+                    }
+                }
+                
+                if (!IsPistolRound() && Config.GiveMoney == true)
+                {
+                    var money = Config.Money;
+                    moneyServices.Account = !Config.Money.Contains("++") ? int.Parse(Config.Money) : moneyServices.Account + int.Parse(Config.Money.Split("++")[1]);;
+                    
+                    if (moneyServices.Account > Config.MaxMoney) moneyServices.Account = Config.MaxMoney;
+                    
+                    if (Config.DebugLogs == true) 
+                    {
+                        Logger.LogInformation($"Gave {money}$ to {player.PlayerName}.[NormalRound]");
+                        Logger.LogInformation($"Player {player.PlayerName} has {moneyServices.Account}$.[NormalRound]");
+                    }
+                }
+                
+                if (playerPawn != null && PlayerPawn != null)
+                {
+                    if (Config.GiveHealth == true)
+                    {
+                        if (Config.DebugLogs == true) Logger.LogInformation($"Setting health for {player.PlayerName} to {Config.Health}.");
+
+                        playerPawn.Health = Config.Health;
+                        Utilities.SetStateChanged(playerPawn, "CBaseEntity", "m_iHealth");
+                    }
+                    
+                    if (Config.GiveArmor == true)
+                    {   
+                        if (Config.DebugLogs == true) Logger.LogInformation($"Setting armor for {player.PlayerName} to {Config.Armor}.");
+                        
+                        PlayerPawn.ArmorValue = Config.Armor;
+                        Utilities.SetStateChanged(PlayerPawn, "CCSPlayerPawn", "m_ArmorValue");
+                    }
+                }
+            }
+
+            if(Config.SetClanTag == true && Config.ClanTag != null)
+            {
+                if (Config.DebugLogs == true) Logger.LogInformation($"Setting ClanTag for {player.PlayerName} to {Config.ClanTag}.");
+                
+                player.Clan = Config.ClanTag;
+                Utilities.SetStateChanged(player, "CCSPlayerController", "m_szClan");
+            }
+        });
         return HookResult.Continue;
     }
 }
