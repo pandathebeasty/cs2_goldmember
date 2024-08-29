@@ -68,11 +68,11 @@ public class GoldMemberConfig: BasePluginConfig
     public override int Version { get; set; } = 12;
 }
     
-[MinimumApiVersion(236)]
+[MinimumApiVersion(260)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.3";
+    public override string ModuleVersion => "0.1.4";
     public override string ModuleAuthor => "panda.";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
@@ -142,12 +142,12 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
     public override void OnAllPluginsLoaded(bool hotReload)
     {
-        RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
+        RegisterEventHandler<EventPlayerConnect>(OnPlayerConnect);
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
 
         if (Config.DebugLogs == true)
         {
-            Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerConnectFull~ \u001b[1;32mregistered!");
+            Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerConnect~ \u001b[1;32mregistered!");
             Logger.LogInformation("\u001b[1;32mEvent \u001b[1;33m~OnPlayerSpawn~ \u001b[1;32mregistered!");
         }
 
@@ -273,13 +273,13 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         return HookResult.Continue;
     }
     
-    public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
+    public HookResult OnPlayerConnect(EventPlayerConnect @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;
         if (player == null || player.IsBot || player.IsHLTV || !player.IsValid) return HookResult.Continue;
         
         if (player.IsValid) 
-            AddTimer(Config.AdsTimer, PrintAds, TimerFlags.REPEAT);
+            AddTimer(Config.AdsTimer, PrintAds);
         
         return HookResult.Continue;
     }
