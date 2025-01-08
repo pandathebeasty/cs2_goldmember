@@ -68,11 +68,11 @@ public class GoldMemberConfig: BasePluginConfig
     public override int Version { get; set; } = 12;
 }
     
-[MinimumApiVersion(276)]
+[MinimumApiVersion(296)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.5";
+    public override string ModuleVersion => "0.1.6";
     public override string ModuleAuthor => "panda.";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
