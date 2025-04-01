@@ -4,6 +4,7 @@ using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Core.Capabilities;
 using CounterStrikeSharp.API.Modules.Cvars;
+using CounterStrikeSharp.API.Modules.Events;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Timers;
@@ -72,7 +73,7 @@ public class GoldMemberConfig: BasePluginConfig
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.6";
+    public override string ModuleVersion => "0.1.7";
     public override string ModuleAuthor => "panda.";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
