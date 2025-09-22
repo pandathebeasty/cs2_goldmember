@@ -69,11 +69,11 @@ public class GoldMemberConfig: BasePluginConfig
     public override int Version { get; set; } = 12;
 }
     
-[MinimumApiVersion(296)]
+[MinimumApiVersion(340)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.7";
+    public override string ModuleVersion => "0.1.8";
     public override string ModuleAuthor => "panda.";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
@@ -249,6 +249,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
                     : string.Format(Localizer["gold.BecomeGoldMemberMsg"], (object)string.Join(", ", Config.NameDns), itemsString)));
                 return;
             }
+
             if(Config.ShowAds)
             {
                 if (Config.DebugLogs == true)  Logger.LogInformation($"Displaying ad to GoldMember '{player.PlayerName}'.");
