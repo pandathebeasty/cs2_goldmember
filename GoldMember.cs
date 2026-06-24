@@ -69,12 +69,12 @@ public class GoldMemberConfig: BasePluginConfig
     public override int Version { get; set; } = 12;
 }
     
-[MinimumApiVersion(340)]
+[MinimumApiVersion(369)]
 public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.1.8";
-    public override string ModuleAuthor => "panda.";
+    public override string ModuleVersion => "0.2.0";
+    public override string ModuleAuthor => "panda (Discord: panda.4179)";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
     public GoldMemberConfig Config { get; set; }  = new GoldMemberConfig();
     public IVipCoreApi? _api;
@@ -234,7 +234,7 @@ public class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
             Config.AdsTimer = 60.0f;
         }
         
-        var players = Utilities.GetPlayers().Where(x => x is { IsBot: false, Connected: PlayerConnectedState.PlayerConnected });
+        var players = Utilities.GetPlayers().Where(x => x is { IsBot: false, Connected: PlayerConnectedState.Connected });
         
         foreach (var player in players)
         {
