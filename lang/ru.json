@@ -3,5 +3,19 @@
     "gold.BecomeGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Чтобы стать {gold}GoldMember® {default}вам нужно иметь{lime} {0} {default}в вашем имени, чтобы получить преимущества.",
     "gold.IsGoldMemberMsg": " {red}[GoldMember] {default}Вы {lime}GoldMember®{default}. Вы получаете:{lime} {0} {default}.",
     "gold.IsGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Вы {lime}GoldMember®{default}. {gold}Спасибо!",
-    "gold.RestrictedCommand": " {red}[GoldMember] {default}Эту команду могут использовать только {lime}Gold Members{default}."
+    "gold.RestrictedCommand": " {red}[GoldMember] {default}Эту команду могут использовать только {lime}Gold Members{default}.",
+    "gold.Welcome": " {red}[GoldMember] {gold}Добро пожаловать, {lime}{0}{gold}! Спасибо, что вы GoldMember®.",
+    "gold.JoinAnnounce": " {red}[GoldMember] {gold}GoldMember® {lime}{0} {gold}зашёл на сервер.",
+    "gold.LeaveAnnounce": " {red}[GoldMember] {gold}GoldMember® {lime}{0} {gold}покинул сервер.",
+    "gold.InfoHeader": " {red}[GoldMember] {gold}Преимущества GoldMember® (добавьте {lime}{0}{gold} в имя):",
+    "gold.InfoItems": " {default}- Бесплатные предметы: {lime}{0}",
+    "gold.InfoHealth": " {default}- Здоровье: {lime}{0}",
+    "gold.InfoArmor": " {default}- Броня: {lime}{0}",
+    "gold.InfoMoney": " {default}- Деньги: {lime}{0}",
+    "gold.InfoYouAreMember": " {green}Вы уже GoldMember®. Приятной игры!",
+    "gold.InfoHowTo": " {default}Добавьте {lime}{0} {default}в имя, чтобы разблокировать эти преимущества.",
+    "gold.ListEmpty": " {red}[GoldMember] {default}Сейчас нет онлайн GoldMember'ов.",
+    "gold.ListHeader": " {red}[GoldMember] {gold}GoldMember'ы онлайн ({lime}{0}{gold}):",
+    "gold.NoPermission": " {red}[GoldMember] {default}У вас нет прав на использование этой команды.",
+    "gold.Reloaded": " {red}[GoldMember] {green}Конфигурация перезагружена."
 }

@@ -3,5 +3,19 @@
     "gold.BecomeGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}To become {gold}GoldMember® {default}you need to have{lime} {0} {default}in your name to receive benefits.",
     "gold.IsGoldMemberMsg": " {red}[GoldMember] {default}You are {lime}GoldMember®{default}. You are receiving:{lime} {0} {default}.",
     "gold.IsGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}You are {lime}GoldMember®{default}. {gold}Thanks!",
-    "gold.RestrictedCommand": " {red}[GoldMember] {default}This command can be used only by {lime}Gold Members{default}."
+    "gold.RestrictedCommand": " {red}[GoldMember] {default}This command can be used only by {lime}Gold Members{default}.",
+    "gold.Welcome": " {red}[GoldMember] {gold}Welcome, {lime}{0}{gold}! Thanks for being a GoldMember®.",
+    "gold.JoinAnnounce": " {red}[GoldMember] {gold}GoldMember® {lime}{0} {gold}joined the server.",
+    "gold.LeaveAnnounce": " {red}[GoldMember] {gold}GoldMember® {lime}{0} {gold}left the server.",
+    "gold.InfoHeader": " {red}[GoldMember] {gold}GoldMember® benefits (put {lime}{0}{gold} in your name):",
+    "gold.InfoItems": " {default}- Free items: {lime}{0}",
+    "gold.InfoHealth": " {default}- Health: {lime}{0}",
+    "gold.InfoArmor": " {default}- Armor: {lime}{0}",
+    "gold.InfoMoney": " {default}- Money: {lime}{0}",
+    "gold.InfoYouAreMember": " {green}You are currently a GoldMember®. Enjoy!",
+    "gold.InfoHowTo": " {default}Add {lime}{0} {default}to your name to unlock these benefits.",
+    "gold.ListEmpty": " {red}[GoldMember] {default}There are no GoldMembers online right now.",
+    "gold.ListHeader": " {red}[GoldMember] {gold}Online GoldMembers ({lime}{0}{gold}):",
+    "gold.NoPermission": " {red}[GoldMember] {default}You do not have permission to use this command.",
+    "gold.Reloaded": " {red}[GoldMember] {green}Config reloaded."
 }

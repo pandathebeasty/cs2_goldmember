@@ -3,5 +3,19 @@
     "gold.BecomeGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Pentru a deveni {gold}GoldMember® {default}trebuie să ai{lime} {0} {default}în nume pentru a primi beneficii.",
     "gold.IsGoldMemberMsg": " {red}[GoldMember] {default}Ești {lime}GoldMember®{default}. Primești:{lime} {0} {default}.",
     "gold.IsGoldMemberMsgWithoutItems": " {red}[GoldMember] {default}Ești {lime}GoldMember®{default}. {gold}Mulțumim!",
-    "gold.RestrictedCommand": " {red}[GoldMember] {default}Această comandă poate fi utilizată doar de {lime}Gold Members{default}."
+    "gold.RestrictedCommand": " {red}[GoldMember] {default}Această comandă poate fi utilizată doar de {lime}Gold Members{default}.",
+    "gold.Welcome": " {red}[GoldMember] {gold}Bun venit, {lime}{0}{gold}! Mulțumim că ești GoldMember®.",
+    "gold.JoinAnnounce": " {red}[GoldMember] {gold}GoldMember® {lime}{0} {gold}s-a conectat pe server.",
+    "gold.LeaveAnnounce": " {red}[GoldMember] {gold}GoldMember® {lime}{0} {gold}a părăsit serverul.",
+    "gold.InfoHeader": " {red}[GoldMember] {gold}Beneficii GoldMember® (pune {lime}{0}{gold} în nume):",
+    "gold.InfoItems": " {default}- Iteme gratuite: {lime}{0}",
+    "gold.InfoHealth": " {default}- Viață: {lime}{0}",
+    "gold.InfoArmor": " {default}- Armură: {lime}{0}",
+    "gold.InfoMoney": " {default}- Bani: {lime}{0}",
+    "gold.InfoYouAreMember": " {green}Ești deja GoldMember®. Distracție plăcută!",
+    "gold.InfoHowTo": " {default}Adaugă {lime}{0} {default}în nume ca să deblochezi aceste beneficii.",
+    "gold.ListEmpty": " {red}[GoldMember] {default}Nu există niciun GoldMember online momentan.",
+    "gold.ListHeader": " {red}[GoldMember] {gold}GoldMembers online ({lime}{0}{gold}):",
+    "gold.NoPermission": " {red}[GoldMember] {default}Nu ai permisiunea să folosești această comandă.",
+    "gold.Reloaded": " {red}[GoldMember] {green}Configurația a fost reîncărcată."
 }

@@ -7,14 +7,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.369" />
+    <PackageReference Include="CounterStrikeSharp.API" Version="1.0.374" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.0" />
 
+    <!-- VipCoreApi is a SHARED API: it ships once in addons/counterstrikesharp/shared, so Private=false
+         stops a local copy being emitted next to this plugin (which could drift / conflict). -->
     <Reference Include="VipCoreApi">
       <HintPath>VipCoreApi.dll</HintPath>
+      <Private>false</Private>
     </Reference>
-    
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="8.0.0" />
-    
+
+    <!-- Shared ChatManager API: ships once in addons/counterstrikesharp/shared. Private=false so no
+         local copy is emitted. GoldMember registers itself as a chat-tag provider through it. -->
+    <Reference Include="ChatManagerApi">
+      <HintPath>3rd_party\ChatManagerApi.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="lang\**\*.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
