@@ -35,10 +35,6 @@ addons/counterstrikesharp/
 ├─ plugins/ChatManager/     ChatManager.dll        (if using tags)
 └─ shared/ChatManagerApi/   ChatManagerApi.dll
 ```
-
-> `VipCoreApi.dll` is **not** bundled — it is provided by your VIPCore install at
-> `shared/VipCoreApi/`. GoldMember just compiles against it.
-
 ---
 
 ## 🎮 Commands
