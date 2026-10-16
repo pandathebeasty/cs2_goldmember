@@ -17,7 +17,7 @@
 | **CounterStrikeSharp** | `>= 1.0.374` (.NET 10) |
 | **Metamod:Source** | required |
 | **VIPCore** | [partiusfabaa/cs2-VIPCore](https://github.com/partiusfabaa/cs2-VIPCore) — used for VIP perks / VIP checks |
-| **ChatManager** | **required only if `SetTag` is enabled**| [ChatManager](https://github.com/pandathebeasty/cs2-ChatManager/releases)
+| **ChatManager** | **required only if `SetTag` is enabled** [ChatManager](https://github.com/pandathebeasty/cs2-ChatManager/releases)| 
 
 > If `SetTag` is **on** but ChatManager is **not** installed, tags are simply not applied.
 
