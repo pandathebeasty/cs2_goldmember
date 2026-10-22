@@ -1,0 +1,95 @@
+name: Build and Publish
+
+on:
+  workflow_dispatch:
+
+env:
+  PROJECT_NAME: "GoldMember"
+  PROJECT_PATH: "./GoldMember.csproj"
+  OUTPUT_PATH: "./counterstrikesharp"
+  TMP_PATH: "./tmp"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    outputs:
+      build_version: ${{ steps.version.outputs.VERSION }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Get Plugin Version
+        id: version
+        run: |
+          VERSION=$(grep "ModuleVersion =>" GoldMember.cs | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore ${{ env.PROJECT_PATH }}
+
+      - name: Build
+        run: |
+          dotnet build ${{ env.PROJECT_PATH }} \
+            -c Release \
+            -o ${{ env.TMP_PATH }}
+
+      - name: Package Plugin
+        run: |
+          mkdir -p ${{ env.OUTPUT_PATH }}/plugins/${{ env.PROJECT_NAME }}
+
+          cp -r ${{ env.TMP_PATH }}/* \
+            ${{ env.OUTPUT_PATH }}/plugins/${{ env.PROJECT_NAME }}/
+
+          if [ -d "lang" ]; then
+            cp -r lang \
+              ${{ env.OUTPUT_PATH }}/plugins/${{ env.PROJECT_NAME }}/
+          fi
+
+      - name: Create ZIP
+        run: |
+          zip -r \
+            ${{ env.PROJECT_NAME }}-${{ steps.version.outputs.VERSION }}.zip \
+            ${{ env.OUTPUT_PATH }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Artifacts
+          path: GoldMember-${{ steps.version.outputs.VERSION }}.zip
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Build-Artifacts
+          path: .
+
+      - name: Publish Release
+        uses: ncipollo/release-action@v1.14.0
+        with:
+          artifacts: GoldMember-${{ needs.build.outputs.build_version }}.zip
+          tag: v${{ needs.build.outputs.build_version }}
+          name: GoldMember v${{ needs.build.outputs.build_version }}
+          allowUpdates: true
+          body: |
+            Installation
+
+            Extract the archive into:
+
+            addons/counterstrikesharp/plugins/
+
+            The plugin will be loaded automatically by CounterStrikeSharp.
+
+            Restart or reload the server after installation.
