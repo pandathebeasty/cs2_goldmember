@@ -5,10 +5,6 @@ namespace GoldMember;
 
 public partial class GoldMember
 {
-    /// <summary>
-    /// Command listener for the configured RestrictedCommands. Non-members get a message telling
-    /// them the command is members-only; members fall through and the command runs normally.
-    /// </summary>
     public HookResult RestrictCommands(CCSPlayerController? player, string command)
     {
         if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV) return HookResult.Continue;

@@ -9,26 +9,21 @@ namespace GoldMember;
 
 public partial class GoldMember
 {
-    // --- Connect / disconnect (welcome + join/leave announce) ---------------------------------
-
     public HookResult OnPlayerConnectFull(EventPlayerConnectFull @event, GameEventInfo info)
     {
         var player = @event.Userid;
         if (player == null || !player.IsValid || player.IsBot || player.IsHLTV) return HookResult.Continue;
-
-        // Membership depends on the name, which is set by connect-full, so a short delay is safest.
+        
         AddTimer(1.0f, () =>
         {
             if (player == null || !player.IsValid) return;
             if (!IsGoldMember(player)) return;
-
-            // #8 Welcome message to the member themselves.
+            
             if (Config.WelcomeMessage)
             {
                 player.PrintToChat(ReplaceColorPlaceholders(string.Format(Localizer["gold.Welcome"], player.PlayerName)));
             }
-
-            // #9 Announce the join to everyone.
+            
             if (Config.AnnounceJoinLeave)
             {
                 Server.PrintToChatAll(ReplaceColorPlaceholders(string.Format(Localizer["gold.JoinAnnounce"], player.PlayerName)));
@@ -42,8 +37,7 @@ public partial class GoldMember
     {
         var player = @event.Userid;
         if (player == null || !player.IsValid || player.IsBot || player.IsHLTV) return HookResult.Continue;
-
-        // #9 Announce the leave to everyone (checked while the name is still available).
+        
         if (Config.AnnounceJoinLeave && IsGoldMember(player))
         {
             Server.PrintToChatAll(ReplaceColorPlaceholders(string.Format(Localizer["gold.LeaveAnnounce"], player.PlayerName)));
@@ -51,10 +45,7 @@ public partial class GoldMember
 
         return HookResult.Continue;
     }
-
-    // --- Commands -----------------------------------------------------------------------------
-
-    // #12 !goldmember - shows the benefits and how to become a member.
+    
     public void OnGoldMemberCommand(CCSPlayerController? player, CommandInfo command)
     {
         if (player == null || !player.IsValid) return;
@@ -79,8 +70,7 @@ public partial class GoldMember
             ? Localizer["gold.InfoYouAreMember"]
             : string.Format(Localizer["gold.InfoHowTo"], dnsList)));
     }
-
-    // #13 !gmlist - lists the GoldMembers currently online.
+    
     public void OnGmListCommand(CCSPlayerController? player, CommandInfo command)
     {
         if (player == null || !player.IsValid) return;
@@ -99,11 +89,9 @@ public partial class GoldMember
         player.PrintToChat(ReplaceColorPlaceholders(string.Format(Localizer["gold.ListHeader"], members.Count)));
         player.PrintToChat(ReplaceColorPlaceholders(string.Join(", ", members)));
     }
-
-    // #14 css_gm_reload - admin-only config reload.
+    
     public void OnReloadCommand(CCSPlayerController? player, CommandInfo command)
     {
-        // Server console (null) always allowed; an in-game player needs the configured flag.
         if (player != null)
         {
             if (!player.IsValid) return;
@@ -113,8 +101,7 @@ public partial class GoldMember
                 return;
             }
         }
-
-        // Re-read the config file from disk and re-apply it.
+        
         var loaded = LoadConfigFromDisk();
         if (loaded != null)
         {

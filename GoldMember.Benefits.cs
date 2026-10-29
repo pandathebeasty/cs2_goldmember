@@ -23,12 +23,7 @@ public partial class GoldMember
             Config.VIPTime != 0 ? Config.VIPTime : GetRoundTime()
         );
     }
-
-    /// <summary>
-    /// Grants the GoldMember benefits on spawn: items, money, health, armor, optional temporary VIP
-    /// and clan tag. Has two paths - one that integrates with VIPCore (skips benefits for existing
-    /// VIPs so they do not stack) and one standalone path when VIPCore is disabled.
-    /// </summary>
+    
     public HookResult OnPlayerSpawn(EventPlayerSpawn @event, GameEventInfo info)
     {
         CCSPlayerController? player = @event.Userid;

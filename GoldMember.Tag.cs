@@ -7,8 +7,6 @@ namespace GoldMember;
 
 public partial class GoldMember
 {
-    // GoldMember sits between VIP and admin in the chat line: its prefix comes after VIP (Order 10)
-    // but before admin (Order 20), and it wins colours over VIP but loses to admin.
     private const int TagOrder = 15;
     private const int TagColorPriority = 75;
     private const string ChatProviderName = "goldmember";

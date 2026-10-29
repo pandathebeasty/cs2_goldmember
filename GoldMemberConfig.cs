@@ -63,7 +63,6 @@ public class GoldMemberConfig : BasePluginConfig
 
 public class TagConfig
 {
-    // Plain-text tag shown on the scoreboard (player.Clan). No colours.
     [JsonPropertyName("ClanTag")]
     public string ClanTag { get; set; } = "GoldMember®";
 

@@ -83,7 +83,8 @@ public partial class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
     public override void Unload(bool hotReload)
     {
-        ShutdownTag();
+        if (Config.SetTag)
+            ShutdownTag();
     }
 
     public void OnConfigParsed(GoldMemberConfig config)

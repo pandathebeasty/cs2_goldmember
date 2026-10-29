@@ -48,8 +48,6 @@ public partial class GoldMember
 
     public bool IsPistolRound()
     {
-        // Use FirstOrDefault + null checks: FindAll(...).First() threw and could crash the server
-        // when cs_gamerules was not present yet (map change, early warmup). ConVars can also be null.
         var proxy = Utilities.FindAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
         var gamerules = proxy?.GameRules;
         if (gamerules == null) return false;
@@ -64,17 +62,11 @@ public partial class GoldMember
     {
         return ConVar.Find("mp_roundtime")?.GetPrimitiveValue<int>() ?? 2;
     }
-
-    /// <summary>
-    /// Gives an item, mapping the incendiary/molotov pair to the team-correct variant: T can only
-    /// hold a molotov, CT an incgrenade. The old code had an if whose branches were identical, so
-    /// this is the behaviour it clearly intended but never applied.
-    /// </summary>
+    
     private static void GiveItemTeamAware(CCSPlayerController player, string rawItem)
     {
         var item = rawItem.Trim();
-
-        // Terrorist -> molotov; CounterTerrorist -> incgrenade.
+        
         if (item is "weapon_molotov" or "weapon_incgrenade")
         {
             item = player.TeamNum == 2 ? "weapon_molotov" : "weapon_incgrenade";
@@ -82,14 +74,7 @@ public partial class GoldMember
 
         player.GiveNamedItem(item);
     }
-
-    /// <summary>
-    /// Resolves the configured Money value against the player's current balance, safely.
-    /// "1000"    -> set the account to 1000.
-    /// "++500"   -> add 500 to the current account.
-    /// Invalid / unparseable values leave the account unchanged (no crash). Replaces the old
-    /// int.Parse(...) / Split("++")[1] code which threw on bad config and could crash each spawn.
-    /// </summary>
+    
     public int ResolveMoney(int currentAccount)
     {
         var money = Config.Money?.Trim() ?? string.Empty;
@@ -102,7 +87,7 @@ public partial class GoldMember
             if (parts.Length >= 1 && int.TryParse(parts[^1], out var add))
                 return currentAccount + add;
 
-            return currentAccount; // malformed "++" value -> leave unchanged
+            return currentAccount;
         }
 
         return int.TryParse(money, out var set) ? set : currentAccount;

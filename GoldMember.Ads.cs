@@ -7,11 +7,6 @@ namespace GoldMember;
 
 public partial class GoldMember
 {
-    /// <summary>
-    /// Periodic advertisement broadcast (driven by the single repeating ads timer). Non-members get
-    /// a "become a GoldMember" promo; members get a confirmation of their perks. Both have a
-    /// with-items and without-items variant depending on whether Items is configured.
-    /// </summary>
     public void PrintAds()
     {
         string itemsString = string.Join(", ", Config.Items.Select(item => new CultureInfo("en-US", false).TextInfo.ToTitleCase(item.Replace("weapon_", ""))));
@@ -27,7 +22,6 @@ public partial class GoldMember
 
         foreach (var player in players)
         {
-            // Skip this player (not return) so the rest still get the ad.
             if (player == null || Config == null || !player.IsValid || player.IsBot || player.IsHLTV) continue;
 
             if (!IsGoldMember(player) && Config.ShowAds)
