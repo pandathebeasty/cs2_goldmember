@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.0" />
     
     <Reference Include="VipCoreApi">
-      <HintPath>VipCoreApi.dll</HintPath>
+      <HintPath>3rd_party\VipCoreApi.dll</HintPath>
       <Private>false</Private>
     </Reference>
     
