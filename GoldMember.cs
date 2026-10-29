@@ -37,8 +37,7 @@ public partial class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         RegisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
         RegisterEventHandler<EventPlayerConnectFull>(OnPlayerConnectFull);
         RegisterEventHandler<EventPlayerDisconnect>(OnPlayerDisconnect);
-
-        // Player-facing info + list commands (anyone), and an admin-only config reload.
+        
         AddCommand("css_goldmember", "Shows the GoldMember benefits and how to become one.", OnGoldMemberCommand);
         AddCommand("css_gmlist", "Lists the GoldMembers currently online.", OnGmListCommand);
         AddCommand("css_gm_reload", "Reloads the GoldMember config (admin only).", OnReloadCommand);
@@ -47,11 +46,7 @@ public partial class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         {
             Logger.LogInformation("\u001b[1;32mEvents \u001b[1;33m~OnPlayerSpawn/ConnectFull/Disconnect~ \u001b[1;32mregistered!");
         }
-
-        // Single, repeating ads timer for the whole server. The old code started one timer PER
-        // player connect, without REPEAT - that fired once per connect and PrintAds already loops
-        // over everyone, so N players meant N overlapping one-shot broadcasts (spam). One global
-        // repeating timer is correct.
+        
         if (Config.ShowAds)
         {
             var interval = (Config.AdsTimer is float.NaN or <= 0f) ? 60.0f : Config.AdsTimer;
@@ -81,13 +76,14 @@ public partial class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
         {
             AddCommandListener($"{command}", (player, args) => RestrictCommands(player, command));
         }
-
-        InitChatTag();
+        
+        if (Config.SetTag)
+            InitTags();
     }
 
     public override void Unload(bool hotReload)
     {
-        ShutdownChatTag();
+        ShutdownTag();
     }
 
     public void OnConfigParsed(GoldMemberConfig config)

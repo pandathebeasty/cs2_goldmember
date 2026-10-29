@@ -15,13 +15,8 @@ public partial class GoldMember
 
     private readonly PluginCapability<IChatManagerApi?> _chatManagerCap = IChatManagerApi.Capability;
     private IChatManagerApi? _chatManager;
-
-    /// <summary>
-    /// Resolves ChatManager and registers GoldMember as a tag provider. Called from
-    /// OnAllPluginsLoaded. If SetTag is on but ChatManager is missing, tags simply do not apply
-    /// (hard dependency, by design - no direct clan-tag fallback).
-    /// </summary>
-    public void InitChatTag()
+    
+    public void InitTags()
     {
         if (!Config.SetTag)
         {
@@ -36,26 +31,21 @@ public partial class GoldMember
             return;
         }
 
-        _chatManager.RegisterProvider(ChatProviderName, GetChatTag);
+        _chatManager.RegisterProvider(ChatProviderName, GetTag);
         if (Config.DebugLogs) Logger.LogInformation("[GoldMember] Registered as a ChatManager tag provider.");
     }
-
-    public void ShutdownChatTag()
+    
+    public void ShutdownTag()
     {
         _chatManager?.UnregisterProvider(ChatProviderName);
     }
-
-    /// <summary>Refreshes a player's tag in ChatManager (chat line + scoreboard) immediately.</summary>
-    public void RefreshChatTag(CCSPlayerController player)
+    
+    public void RefreshTag(CCSPlayerController player)
     {
         _chatManager?.RefreshTags(player);
     }
-
-    /// <summary>
-    /// Provider callback: returns the GoldMember tag for a player, or null when they are not a
-    /// GoldMember (so ChatManager adds nothing for them).
-    /// </summary>
-    private ChatTag? GetChatTag(CCSPlayerController player)
+    
+    private ChatTag? GetTag(CCSPlayerController player)
     {
         if (!Config.SetTag || !IsGoldMember(player))
         {
@@ -65,9 +55,7 @@ public partial class GoldMember
         var t = Config.Tag;
         return new ChatTag
         {
-            // Scoreboard clan tag (plain text; ChatManager strips any stray tokens).
             ScoreboardTag = t.ClanTag,
-            // Chat prefix = colour + tag text, e.g. "{gold}[GoldMember]".
             ChatPrefix = $"{t.ChatTag.TagColor}{t.ChatTag.Tag}",
             NameColor = t.ChatTag.NameColor,
             MessageColor = t.ChatTag.MessageColor,

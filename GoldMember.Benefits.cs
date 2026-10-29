@@ -222,7 +222,7 @@ public partial class GoldMember
             if (Config.SetTag)
             {
                 if (Config.DebugLogs == true) Logger.LogInformation($"Refreshing GoldMember tag for {player.PlayerName}.");
-                RefreshChatTag(player);
+                RefreshTag(player);
             }
         });
         return HookResult.Continue;
