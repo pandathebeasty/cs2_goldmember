@@ -24,11 +24,6 @@ public partial class GoldMember
         );
     }
 
-    private bool IsVipPistolRound()
-    {
-        return _api?.IsPistolRound() ?? false;
-    }
-
     /// <summary>
     /// Grants the GoldMember benefits on spawn: items, money, health, armor, optional temporary VIP
     /// and clan tag. Has two paths - one that integrates with VIPCore (skips benefits for existing
