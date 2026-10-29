@@ -7,6 +7,28 @@ namespace GoldMember;
 
 public partial class GoldMember
 {
+    private bool IsClientVip(CCSPlayerController player)
+    {
+        return _api?.IsPlayerVip(player) ?? false;
+    }
+    
+    private void GiveTempVip(CCSPlayerController player)
+    {
+        if (_api == null)
+            return;
+        
+        _api.GivePlayerVip(
+            player,
+            Config.VIPGroup,
+            Config.VIPTime != 0 ? Config.VIPTime : GetRoundTime()
+        );
+    }
+
+    private bool IsVipPistolRound()
+    {
+        return _api?.IsPistolRound() ?? false;
+    }
+
     /// <summary>
     /// Grants the GoldMember benefits on spawn: items, money, health, armor, optional temporary VIP
     /// and clan tag. Has two paths - one that integrates with VIPCore (skips benefits for existing
@@ -49,7 +71,7 @@ public partial class GoldMember
             {
                 if (Config.GiveItems == true && Config.Items != null)
                 {
-                    if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound == true && !_api.IsClientVip(player))
+                    if (_api.IsPistolRound() && Config.GiveItemsDuringPistolRound == true && IsClientVip(player))
                     {
                         foreach (string item in Config.Items)
                         {
@@ -58,7 +80,7 @@ public partial class GoldMember
                             if (Config.DebugLogs == true) Logger.LogInformation($"Gave item: {item} to player: {player.PlayerName}.[PistolRound]");
                         }
                     }
-                    else if (!_api.IsPistolRound() && !_api.IsClientVip(player))
+                    else if (!_api.IsPistolRound() && IsClientVip(player))
                     {
                         foreach (string item in Config.Items)
                         {
@@ -99,7 +121,7 @@ public partial class GoldMember
                     }
                 }
 
-                if (!_api.IsClientVip(player))
+                if (IsClientVip(player))
                 {
                     if (playerPawn != null && PlayerPawn != null)
                     {
@@ -121,11 +143,11 @@ public partial class GoldMember
                     }
                 }
 
-                if (!_api.IsClientVip(player) && Config.GiveVIPToPlayer == true)
+                if (IsClientVip(player) && Config.GiveVIPToPlayer == true)
                 {
                     if (Config.DebugLogs == true) Logger.LogInformation($"Gave VIP: {Config.VIPGroup} to player: {player.PlayerName}");
-
-                    _api.GiveClientTemporaryVip(player, Config.VIPGroup, Config.VIPTime != 0 ? Config.VIPTime : GetRoundTime());
+                    
+                    GiveTempVip(player);
                 }
             }
             else

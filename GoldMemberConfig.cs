@@ -39,8 +39,6 @@ public class GoldMemberConfig : BasePluginConfig
     public string VIPGroup { get; set; } = "";
     [JsonPropertyName("VIPTime")]
     public int VIPTime { get; set; } = 2;
-    // When true, GoldMembers get both the scoreboard clan tag AND the chat tag, applied through the
-    // ChatManager plugin. If ChatManager is not installed, nothing is applied (hard dependency).
     [JsonPropertyName("SetTag")]
     public bool SetTag { get; set; } = false;
     [JsonPropertyName("Tag")]

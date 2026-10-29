@@ -9,33 +9,24 @@ using System.Text.Encodings.Web;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using VipCoreApi;
+using VipCoreApi.Args;
+using VipCoreApi.Enums;
+
 
 namespace GoldMember;
 
-/*
- * Gold Member - grants benefits to players who carry a configured DNS/tag in their name.
- *
- * The implementation is split across partial-class files by responsibility:
- *   GoldMember.cs         - plugin metadata, fields, lifecycle (load / config)
- *   GoldMemberConfig.cs   - the config model
- *   GoldMember.Helpers.cs - shared helpers (membership check, money/item resolve, colors, round)
- *   GoldMember.Benefits.cs- OnPlayerSpawn: grants items / money / health / armor / VIP / clan tag
- *   GoldMember.Ads.cs     - periodic advertisement messages
- *   GoldMember.Commands.cs- restricted-command handling
- */
 [MinimumApiVersion(374)]
 public partial class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 {
     public override string ModuleName => "Gold Member";
-    public override string ModuleVersion => "0.3.0";
+    public override string ModuleVersion => "0.3.1";
     public override string ModuleAuthor => "panda (Discord: panda.4179)";
     public override string ModuleDescription => "Benefits for those who have DNS in name (https://github.com/pandathebeasty/cs2_goldmember)";
 
     public GoldMemberConfig Config { get; set; } = new GoldMemberConfig();
 
-    public IVipCoreApi? _api;
-    public PluginCapability<IVipCoreApi> PluginCapability { get; } = new("vipcore:core");
-
+    private IVipCoreApi? _api;
+    
     public static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name ?? "";
     public static readonly string CfgPath = Path.Combine(Server.GameDirectory, "csgo", "addons", "counterstrikesharp", "configs", "plugins", AssemblyName, $"{AssemblyName}.json");
 
@@ -69,14 +60,21 @@ public partial class GoldMember : BasePlugin, IPluginConfig<GoldMemberConfig>
 
         if (Config.VipCoreEnabled)
         {
-            _api = PluginCapability.Get();
-            if (_api == null) return;
-
-            if (Config.DebugLogs == true) Logger.LogInformation("\u001b[1;32mRunning with \u001b[1;33mVIPCore\u001b[1;32m!");
+            _api = IVipCoreApi.Capability.Get();
+            
+            if (_api == null)
+            {
+                Logger.LogWarning("VIPCore was not found.");
+                return;
+            }
+            
+            if (Config.DebugLogs)
+                Logger.LogInformation("\u001b[1;32mRunning with \u001b[1;33mVIPCore\u001b[1;32m!");
         }
         else
         {
-            if (Config.DebugLogs == true) Logger.LogInformation("\u001b[1;33mRunning without \u001b[1;31mVIPCore\u001b[1;33m!");
+            if (Config.DebugLogs)
+                Logger.LogInformation("\u001b[1;33mRunning without \u001b[1;31mVIPCore\u001b[1;33m!");
         }
 
         foreach (string command in Config.RestrictedCommands)
